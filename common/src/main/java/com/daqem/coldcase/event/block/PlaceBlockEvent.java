@@ -1,0 +1,17 @@
+package com.daqem.coldcase.event.block;
+
+import com.daqem.coldcase.model.action.BlockAction;
+import com.daqem.coldcase.player.ColdCaseServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class PlaceBlockEvent {
+
+    public static void placeBlock(Level level, BlockPos pos, BlockState state, Entity placer) {
+        if (placer instanceof ColdCaseServerPlayer serverPlayer) {
+            LogBlockEvent.logBlock(serverPlayer, level, state, pos, BlockAction.PLACE_BLOCK);
+        }
+    }
+}

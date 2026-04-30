@@ -1,0 +1,30 @@
+package com.daqem.coldcase.event;
+
+import com.daqem.coldcase.database.service.Services;
+import com.daqem.coldcase.model.action.SessionAction;
+import com.mojang.authlib.GameProfile;
+import dev.architectury.event.events.common.PlayerEvent;
+
+import java.util.UUID;
+
+public class PlayerJoinEvent {
+
+    public static void registerEvent() {
+        PlayerEvent.PLAYER_JOIN.register(player -> {
+            GameProfile gameProfile = player.getGameProfile();
+            UUID uuid = gameProfile.getId();
+
+            Services.USER.insertOrUpdateName(
+                    uuid,
+                    gameProfile.getName()
+            );
+
+            Services.SESSION.insert(
+                    uuid,
+                    player.level(),
+                    player.getOnPos(),
+                    SessionAction.JOIN
+            );
+        });
+    }
+}

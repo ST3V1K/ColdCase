@@ -1,27 +1,27 @@
 {
   "schemaVersion": 1,
-  "id": "grieflogger",
+  "id": "coldcase",
   "version": "${version}",
-  "name": "GriefLogger",
+  "name": "ColdCase",
   "description": "A mod that logs all player interactions with blocks and entities and stores them in a database.",
   "authors": [
     "DAQEM"
   ],
   "contact": {
     "homepage": "https://daqem.com/",
-    "sources": "https://github.com/DAQEM/GriefLogger"
+    "sources": "https://github.com/DAQEM/ColdCase"
   },
   "license": "Apache-2.0",
-  "icon": "assets/grieflogger/icon.png",
+  "icon": "assets/coldcase/icon.png",
   "environment": "*",
   "entrypoints": {
     "server": [
-      "com.daqem.grieflogger.fabric.GriefLoggerFabricServer"
+      "com.daqem.coldcase.fabric.ColdCaseFabricServer"
     ]
   },
   "mixins": [
-    "grieflogger-fabric.mixins.json",
-    "grieflogger-common.mixins.json"
+    "coldcase-fabric.mixins.json",
+    "coldcase-common.mixins.json"
   ],
   "depends": {
     "fabric": "*",

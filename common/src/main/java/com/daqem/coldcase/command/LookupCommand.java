@@ -1,0 +1,72 @@
+package com.daqem.coldcase.command;
+
+import com.daqem.coldcase.command.argument.FilterArgument;
+import com.daqem.coldcase.command.filter.*;
+import com.daqem.coldcase.command.page.Page;
+import com.daqem.coldcase.database.service.Services;
+import com.daqem.coldcase.model.history.*;
+import com.daqem.coldcase.player.ColdCaseServerPlayer;
+import com.daqem.coldcase.thread.ThreadManager;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class LookupCommand implements ICommand {
+
+    @Override
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
+        return Commands.literal("lookup")
+                .requires(source -> source.hasPermission(2))
+                .then(Commands.argument("filter1", StringArgumentType.string())
+                        .suggests((context, builder) -> new FilterArgument().listSuggestions(context, builder))
+                        .then(Commands.argument("filter2", StringArgumentType.string())
+                                .suggests((context, builder) -> new FilterArgument().listSuggestions(context, builder))
+                                .then(Commands.argument("filter3", StringArgumentType.string())
+                                        .suggests((context, builder) -> new FilterArgument().listSuggestions(context, builder))
+                                        .then(Commands.argument("filter4", StringArgumentType.string())
+                                                .suggests((context, builder) -> new FilterArgument().listSuggestions(context, builder))
+                                                .then(Commands.argument("filter5", StringArgumentType.string())
+                                                        .suggests((context, builder) -> new FilterArgument().listSuggestions(context, builder))
+                                                        .executes(context -> lookup(context.getSource(), new FilterList(List.of(FilterArgument.getFilter(context, "filter1"), FilterArgument.getFilter(context, "filter2"), FilterArgument.getFilter(context, "filter3"), FilterArgument.getFilter(context, "filter4"), FilterArgument.getFilter(context, "filter5")), context.getSource()))))
+                                                .executes(context -> lookup(context.getSource(), new FilterList(List.of(FilterArgument.getFilter(context, "filter1"), FilterArgument.getFilter(context, "filter2"), FilterArgument.getFilter(context, "filter3"), FilterArgument.getFilter(context, "filter4")), context.getSource()))))
+                                        .executes(context -> lookup(context.getSource(), new FilterList(List.of(FilterArgument.getFilter(context, "filter1"), FilterArgument.getFilter(context, "filter2"), FilterArgument.getFilter(context, "filter3")), context.getSource()))))
+                                .executes(context -> lookup(context.getSource(), new FilterList(List.of(FilterArgument.getFilter(context, "filter1"), FilterArgument.getFilter(context, "filter2")), context.getSource()))))
+                .executes(context -> lookup(context.getSource(), new FilterList(List.of(FilterArgument.getFilter(context, "filter1")), context.getSource()))));
+    }
+
+    @SuppressWarnings("SameReturnValue")
+    private static int lookup(CommandSourceStack source, FilterList filterList) {
+        if (source.getPlayer() instanceof ColdCaseServerPlayer player) {
+            ThreadManager.submit(() -> getHistory(source.getLevel(), filterList), filteredHistory -> {
+                if (filteredHistory.isEmpty()) {
+                    source.sendFailure(com.daqem.coldcase.ColdCase.translate("lookup.no_results", com.daqem.coldcase.ColdCase.getName()));
+                    return;
+                }
+                List<Page> pages = Page.convertToPages(filteredHistory, false);
+                player.coldcase$setPages(pages);
+                Page pageToDisplay = pages.get(0);
+                pageToDisplay.sendToPlayer((ServerPlayer) player);
+            });
+        }
+        return 1;
+    }
+
+    private static List<IHistory> getHistory(Level level, FilterList filterList) {
+        List<SessionHistory> filteredSessionHistory = Services.SESSION.getFilteredSessionHistory(level, filterList);
+        List<IHistory> filteredBlockHistory = Services.BLOCK.getFilteredBlockHistory(level, filterList);
+        List<IHistory> filteredContainerHistory = Services.CONTAINER.getFilteredContainerHistory(level, filterList);
+        List<ItemHistory> filteredItemHistory = Services.ITEM.getFilteredItemHistory(level, filterList);
+        return new ArrayList<>(List.of(filteredSessionHistory, filteredBlockHistory, filteredContainerHistory, filteredItemHistory))
+                .stream()
+                .flatMap(List::stream)
+                .sorted((x, y) -> Long.compare(y.getTime().time(), x.getTime().time()))
+                .collect(Collectors.toList());
+    }
+}
