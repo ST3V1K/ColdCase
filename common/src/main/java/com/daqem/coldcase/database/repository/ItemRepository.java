@@ -194,6 +194,48 @@ public class ItemRepository extends Repository {
         }
     }
 
+    public List<ItemHistory> getItemHistory(Level level, String levelName, int x, int y, int z) {
+        List<ItemHistory> itemHistory = new ArrayList<>();
+        String query = """
+                SELECT items.time, users.name, users.uuid, items.x, items.y, items.z, materials.name, items.data, items.amount, items.action
+                FROM items
+                INNER JOIN users ON items.user = users.id
+                INNER JOIN levels ON items.level = (
+                    SELECT id FROM levels WHERE name = ?
+                )
+                INNER JOIN materials ON items.type = materials.id
+                WHERE items.level = levels.id AND items.x = ? AND items.y = ? AND items.z = ?
+                ORDER BY items.time DESC
+                """;
+
+        try (PreparedStatement preparedStatement = database.prepareStatement(query)) {
+            preparedStatement.setString(1, levelName);
+            preparedStatement.setInt(2, x);
+            preparedStatement.setInt(3, y);
+            preparedStatement.setInt(4, z);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ByteBuf buf1 = Unpooled.wrappedBuffer(resultSet.getBytes(8));
+                RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(buf1, level.registryAccess());
+                DataComponentPatch patch = DataComponentPatch.STREAM_CODEC.decode(buf);
+                itemHistory.add(new ItemHistory(
+                        resultSet.getLong(1),
+                        resultSet.getString(2),
+                        resultSet.getString(3),
+                        resultSet.getInt(4),
+                        resultSet.getInt(5),
+                        resultSet.getInt(6),
+                        resultSet.getString(7),
+                        patch,
+                        resultSet.getInt(9),
+                        resultSet.getInt(10)));
+            }
+        } catch (SQLException e) {
+            com.daqem.coldcase.ColdCase.LOGGER.error("Failed to get item history", e);
+        }
+        return itemHistory;
+    }
+
     public List<ItemHistory> getFilteredItemHistory(Level level, FilterList filterList) {
         @Nullable String actions = filterList.getActionString();
         @Nullable String users = filterList.getUserString();

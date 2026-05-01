@@ -23,4 +23,6 @@ public interface ColdCaseServerPlayer extends ColdCasePlayer {
     List<Page> coldcase$getPages();
 
     void coldcase$setPages(List<Page> pages);
+
+    void coldcase$sendMagnifyingGlassMessage(List<IHistory> history);
 }

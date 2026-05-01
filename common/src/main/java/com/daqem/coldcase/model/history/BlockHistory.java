@@ -37,7 +37,6 @@ public class BlockHistory extends History {
     }
 
     public Component getMaterialComponent() {
-
         var item = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(material)).asItem();
         MutableComponent mutableComponent = com.daqem.coldcase.ColdCase.themedLiteral(this.material.replace("minecraft:", ""));
         if (item != Items.AIR) {
@@ -61,5 +60,9 @@ public class BlockHistory extends History {
                                     Component.literal(this.material)
                             )));
         }
+    }
+
+    public String getMaterial() {
+        return material;
     }
 }

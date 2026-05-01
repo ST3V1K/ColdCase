@@ -1,11 +1,13 @@
 package com.daqem.coldcase.model;
 
+import com.daqem.coldcase.ColdCase;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public record Time(long time) {
@@ -33,12 +35,18 @@ public record Time(long time) {
         }
     }
 
+    public MutableComponent getFmtTime() {
+        new Timestamp(time);
+        return ColdCase.literal(new Date(time).toString())
+                .withStyle(ChatFormatting.GRAY);
+    }
+
     private MutableComponent getTimeAgoComponent(double timeAgo, Component unit) {
-        return com.daqem.coldcase.ColdCase.translate("lookup.time.ago", String.format("%.2f", timeAgo), com.daqem.coldcase.ColdCase.translate("time.divider"), unit)
+        return ColdCase.translate("lookup.time.ago", String.format("%.2f", timeAgo), ColdCase.translate("time.divider"), unit)
                 .withStyle(Style.EMPTY
                         .withColor(ChatFormatting.GRAY)
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                com.daqem.coldcase.ColdCase.literal(new Date(time).toString())
-                                .withStyle(ChatFormatting.GRAY))));
+                                ColdCase.literal(new Date(time).toString())
+                                        .withStyle(ChatFormatting.GRAY))));
     }
 }

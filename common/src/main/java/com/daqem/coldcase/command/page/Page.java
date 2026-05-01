@@ -1,5 +1,6 @@
 package com.daqem.coldcase.command.page;
 
+import com.daqem.coldcase.ColdCase;
 import com.daqem.coldcase.model.history.IHistory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
@@ -48,7 +49,7 @@ public class Page {
     }
 
     private Component getHeader() {
-        MutableComponent header = com.daqem.coldcase.ColdCase.translate("lookup.history_header", com.daqem.coldcase.ColdCase.themedTranslate("lookup.history_title"));
+        MutableComponent header = ColdCase.translate("lookup.history_header", ColdCase.themedTranslate("lookup.history_title"));
         if (singleLocation && !history.isEmpty()) {
             header.append(" ").append(history.get(0).getPosition().getComponent());
         }
@@ -57,18 +58,17 @@ public class Page {
 
     private Component getFooter() {
         return getArrowLeft().append(" ")
-                .append(com.daqem.coldcase.ColdCase.themedTranslate("lookup.page")).append(" ")
-                .append(com.daqem.coldcase.ColdCase.translate("lookup.pages", page, maxPage).withStyle(ChatFormatting.WHITE)).append(" ")
+                .append(ColdCase.themedTranslate("lookup.page")).append(" ")
+                .append(ColdCase.translate("lookup.pages", page, maxPage).withStyle(ChatFormatting.WHITE)).append(" ")
                 .append(getArrowRight());
     }
 
     private MutableComponent getArrowLeft() {
-
-        return com.daqem.coldcase.ColdCase.literal("⯇").withStyle(getStyle(page - 1, page > 1));
+        return ColdCase.literal("⯇").withStyle(getStyle(page - 1, page > 1));
     }
 
     private MutableComponent getArrowRight() {
-        return com.daqem.coldcase.ColdCase.literal("⯈").withStyle(getStyle(page + 1, page < maxPage));
+        return ColdCase.literal("⯈").withStyle(getStyle(page + 1, page < maxPage));
     }
 
     private ClickEvent getClickEvent(int page) {

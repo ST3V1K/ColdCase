@@ -186,6 +186,10 @@ public class BlockRepository extends Repository {
     }
 
     public List<IHistory> getBlockHistory(String levelName, int x, int y, int z) {
+        return getBlockHistory(levelName, x, y, z, BlockHistory::new);
+    }
+
+    private <T extends BlockHistory> List<IHistory> getBlockHistory(String levelName, int x, int y, int z, BlockHistoryFactory factory) {
         List<IHistory> blockHistory = new ArrayList<>();
         String query = """
                 SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action
@@ -206,7 +210,7 @@ public class BlockRepository extends Repository {
             preparedStatement.setInt(4, z);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                blockHistory.add(new BlockHistory(
+                blockHistory.add(factory.create(
                         resultSet.getLong(1),
                         resultSet.getString(2),
                         resultSet.getString(3),
@@ -224,6 +228,10 @@ public class BlockRepository extends Repository {
     }
 
     public List<IHistory> getInteractionHistory(String levelName, int x, int y, int z) {
+        return getInteractionHistory(levelName, x, y, z, BlockHistory::new);
+    }
+
+    private List<IHistory> getInteractionHistory(String levelName, int x, int y, int z, BlockHistoryFactory factory) {
         List<IHistory> blockHistory = new ArrayList<>();
         String query = """
                 SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action
@@ -244,7 +252,7 @@ public class BlockRepository extends Repository {
             preparedStatement.setInt(4, z);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                blockHistory.add(new BlockHistory(
+                blockHistory.add(factory.create(
                         resultSet.getLong(1),
                         resultSet.getString(2),
                         resultSet.getString(3),
@@ -282,6 +290,10 @@ public class BlockRepository extends Repository {
     }
 
     public List<IHistory> getFilteredBlockHistory(String levelName, FilterList filterList) {
+        return getFilteredBlockHistory(levelName, filterList, BlockHistory::new);
+    }
+
+    private List<IHistory> getFilteredBlockHistory(String levelName, FilterList filterList, BlockHistoryFactory factory) {
         @Nullable String actions = filterList.getActionString();
         @Nullable String users = filterList.getUserString();
         @Nullable String includeMaterials = filterList.getIncludeMaterialsString();
@@ -359,7 +371,7 @@ public class BlockRepository extends Repository {
             List<IHistory> blockHistory = new ArrayList<>();
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                blockHistory.add(new BlockHistory(
+                blockHistory.add(factory.create(
                         resultSet.getLong(1),
                         resultSet.getString(2),
                         resultSet.getString(3),
@@ -374,5 +386,9 @@ public class BlockRepository extends Repository {
             com.daqem.coldcase.ColdCase.LOGGER.error("Failed to get block history from database", exception);
             return List.of();
         }
+    }
+
+    private interface BlockHistoryFactory {
+        BlockHistory create(long time, String name, String uuid, int x, int y, int z, String material, int blockAction);
     }
 }
