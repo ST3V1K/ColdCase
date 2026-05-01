@@ -15,6 +15,12 @@
   "icon": "assets/coldcase/icon.png",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "com.daqem.coldcase.fabric.ColdCaseFabric"
+    ],
+    "client": [
+      "com.daqem.coldcase.fabric.ColdCaseFabricClient"
+    ],
     "server": [
       "com.daqem.coldcase.fabric.ColdCaseFabricServer"
     ]

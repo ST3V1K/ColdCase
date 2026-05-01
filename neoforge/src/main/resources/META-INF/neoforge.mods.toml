@@ -18,28 +18,28 @@ modId = "neoforge"
 mandatory = true
 versionRange = "[3,)"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"
 
 [[dependencies.coldcase]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.21.1,)"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"
 
 [[dependencies.coldcase]]
 modId = "architectury"
 mandatory = true
 versionRange = "[13.0.8,)"
 ordering = "AFTER"
-side = "SERVER"
+side = "BOTH"
 
 [[dependencies.coldcase]]
 modId = "supermartijn642configlib"
 mandatory = true
 versionRange = "[${config_library_version},)"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"
 
 [[mixins]]
 config = "coldcase-common.mixins.json"

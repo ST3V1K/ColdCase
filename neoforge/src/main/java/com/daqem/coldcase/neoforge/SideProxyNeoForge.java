@@ -14,7 +14,6 @@ public class SideProxyNeoForge {
     }
 
     public static class Client extends SideProxyNeoForge {
-
         Client() {
         }
     }

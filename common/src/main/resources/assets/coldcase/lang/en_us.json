@@ -44,5 +44,12 @@
   "coldcase.filter.include": "include",
   "coldcase.filter.radius": "radius",
   "coldcase.filter.time": "time",
-  "coldcase.filter.user": "user"
+  "coldcase.filter.user": "user",
+  "item.coldcase.magnifying_glass": "Magnifying Glass",
+  "item.coldcase.autopsy_kit": "Autopsy Kit",
+  "item.coldcase.identity_theft": "Identity Theft",
+  "item.coldcase.cleanwork_helmet": "Cleanwork Helmet",
+  "item.coldcase.cleanwork_chestplate": "Cleanwork Chestplate",
+  "item.coldcase.cleanwork_pants": "Cleanwork Pants",
+  "item.coldcase.cleanwork_boots": "Cleanwork Boots"
 }
