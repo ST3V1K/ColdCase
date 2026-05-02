@@ -1,5 +1,6 @@
 package com.daqem.coldcase.mixin;
 
+import com.daqem.coldcase.ColdCase;
 import com.daqem.coldcase.block.container.ContainerHandler;
 import com.daqem.coldcase.block.container.ContainerTransactionManager;
 import com.daqem.coldcase.block.container.ContainersTransactionManager;
@@ -10,10 +11,12 @@ import com.daqem.coldcase.event.item.DropItemEvent;
 import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.model.action.ItemAction;
 import com.daqem.coldcase.model.history.IHistory;
+import com.daqem.coldcase.model.history.UnreliableBlockHistory;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
 import com.mojang.authlib.GameProfile;
 import dev.architectury.utils.EnvExecutor;
 import net.fabricmc.api.EnvType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -31,7 +34,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 @Mixin(ServerPlayer.class)
 public abstract class MixinServerPlayer extends Player implements ColdCaseServerPlayer {
@@ -72,6 +80,22 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
             Page pageToDisplay = pages.get(0);
             pageToDisplay.sendToPlayer(coldcase$asServerPlayer());
         }
+    }
+
+    @Unique
+    public void coldcase$sendMagnifyingGlassMessage(List<IHistory> historyList) {
+        ServerPlayer serverPlayer = coldcase$asServerPlayer();
+        if (!historyList.isEmpty()) {
+            for (IHistory history : historyList) {
+                if (history instanceof UnreliableBlockHistory unreliableHistory) {
+                    serverPlayer.sendSystemMessage(unreliableHistory.getClueComponent());
+                    return;
+                }
+            }
+        }
+
+        serverPlayer.sendSystemMessage(ColdCase.translate("clue.not_found")
+                .withStyle(ChatFormatting.GRAY));
     }
 
     @Unique
@@ -137,7 +161,10 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
     public void coldcase$addItemToQueue(ItemAction action, SimpleItemStack itemStack) {
         List<SimpleItemStack> itemStacks = coldcase$itemQueue.get(action);
         if (itemStacks != null) {
-            SimpleItemStack existingItemStack = itemStacks.stream().filter(itemStack::equals).findFirst().orElse(null);
+            SimpleItemStack existingItemStack = itemStacks.stream()
+                    .filter(itemStack::equals)
+                    .findFirst()
+                    .orElse(null);
             if (existingItemStack != null) {
                 existingItemStack.setCount(existingItemStack.getCount() + itemStack.getCount());
                 return;

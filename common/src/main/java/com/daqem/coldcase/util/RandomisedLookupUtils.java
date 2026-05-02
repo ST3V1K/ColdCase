@@ -44,14 +44,14 @@ public class RandomisedLookupUtils {
         Services.COLD_CASE_BLOCK.getInteractionHistoryAsync(
                 level,
                 positions,
-                player::coldcase$sendInspectMessage);
+                player::coldcase$sendMagnifyingGlassMessage);
     }
 
     private static void handleBlockLookup(ColdCaseServerPlayer player, Level level, BlockPos pos, Direction direction) {
         Services.COLD_CASE_BLOCK.getBlockHistoryAsync(
                 level,
                 pos.relative(direction),
-                player::coldcase$sendInspectMessage);
+                player::coldcase$sendMagnifyingGlassMessage);
     }
 
     private static void handleContainerLookup(ColdCaseServerPlayer player, Level level, BlockPos pos, BlockState state) {
@@ -91,7 +91,7 @@ public class RandomisedLookupUtils {
             history.addAll(interactionHistory);
             history.sort((a, b) -> Long.compare(b.getTime().time(), a.getTime().time()));
             return history;
-        }, player::coldcase$sendInspectMessage);
+        }, player::coldcase$sendMagnifyingGlassMessage);
     }
 
     private static BlockPos getChestConnection(BlockState state, BlockPos pos) {
