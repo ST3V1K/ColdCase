@@ -30,14 +30,14 @@ public class BlockService {
         blockRepository.createIndexes();
     }
 
-    public void insertMaterial(UUID userUuid, String levelName, BlockPos pos, String material, BlockAction blockAction, String tool, String skinColor) {
+    public void insertMaterial(UUID userUuid, String levelName, BlockPos pos, String material, BlockAction blockAction, String tool, String skinColor, byte cleansuitArmor) {
         material = material.replace("minecraft:", "");
-        blockRepository.insertMaterial(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), material, blockAction.getId(), tool, skinColor);
+        blockRepository.insertMaterial(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), material, blockAction.getId(), tool, skinColor, cleansuitArmor);
     }
 
-    public void insertEntity(UUID userUuid, String levelName, BlockPos pos, String entity, BlockAction blockAction, String tool, String skinColor) {
+    public void insertEntity(UUID userUuid, String levelName, BlockPos pos, String entity, BlockAction blockAction, String tool, String skinColor, byte cleansuitArmor) {
         entity = entity.replace("minecraft:", "");
-        blockRepository.insertEntity(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), entity, blockAction.getId(), tool, skinColor);
+        blockRepository.insertEntity(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), entity, blockAction.getId(), tool, skinColor, cleansuitArmor);
     }
 
     public List<IHistory> getBlockHistory(Level level, BlockPos pos) {

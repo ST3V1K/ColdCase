@@ -18,20 +18,26 @@ public class BlockHistory extends History {
     private final String material;
     private final String tool;
     private final String skinColor;
+    private final byte cleansuitArmor;
 
     public BlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), "minecraft:air", "unknown");
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), "minecraft:air", "unknown", (byte) 0);
     }
 
     public BlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor);
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor, (byte) 0);
     }
 
-    public BlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor) {
+    public BlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor, byte cleansuitArmor) {
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor, cleansuitArmor);
+    }
+
+    public BlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleansuitArmor) {
         super(time, user, position, action);
         this.material = material;
         this.tool = tool;
         this.skinColor = skinColor;
+        this.cleansuitArmor = cleansuitArmor;
     }
 
     @Override
@@ -79,5 +85,9 @@ public class BlockHistory extends History {
 
     public String getSkinColor() {
         return skinColor;
+    }
+
+    public byte getCleansuitArmor() {
+        return cleansuitArmor;
     }
 }

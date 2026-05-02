@@ -6,14 +6,14 @@ import com.daqem.coldcase.database.repository.ItemRepository;
 import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.model.action.ItemAction;
 import com.daqem.coldcase.model.history.ItemHistory;
-import com.daqem.coldcase.thread.ThreadManager;
+import com.daqem.coldcase.util.CleansuitManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class ItemService {
 
@@ -31,28 +31,30 @@ public class ItemService {
         itemRepository.createIndexes();
     }
 
-    public void insert(UUID userUuid, Level level, BlockPos pos, SimpleItemStack item, ItemAction itemAction) {
+    public void insert(Player player, BlockPos pos, SimpleItemStack item, ItemAction itemAction) {
         ResourceLocation itemLocation = item.getItem().arch$registryName();
         if (itemLocation != null) {
             itemRepository.insert(System.currentTimeMillis(),
-                    userUuid.toString(),
-                    level,
+                    player.getUUID().toString(),
+                    player.level(),
                     pos.getX(),
                     pos.getY(),
                     pos.getZ(),
                     item,
-                    itemAction.getId());
+                    itemAction.getId(),
+                    CleansuitManager.getCleansuitArmorAsByte(player));
         }
     }
 
-    public void insertMap(UUID userUuid, Level level, BlockPos pos, Map<ItemAction, List<SimpleItemStack>> itemsMap) {
+    public void insertMap(Player player, BlockPos pos, Map<ItemAction, List<SimpleItemStack>> itemsMap) {
         itemRepository.insertMap(System.currentTimeMillis(),
-                userUuid.toString(),
-                level,
+                player.getUUID().toString(),
+                player.level(),
                 pos.getX(),
                 pos.getY(),
                 pos.getZ(),
-                itemsMap);
+                itemsMap,
+                CleansuitManager.getCleansuitArmorAsByte(player));
     }
 
     public List<ItemHistory> getFilteredItemHistory(Level level, FilterList filterList) {

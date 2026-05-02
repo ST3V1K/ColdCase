@@ -5,6 +5,7 @@ import com.daqem.coldcase.model.BlockPosition;
 import com.daqem.coldcase.model.Time;
 import com.daqem.coldcase.model.User;
 import com.daqem.coldcase.model.action.BlockAction;
+import com.daqem.coldcase.util.CleansuitManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,6 @@ import java.util.UUID;
 public class UnreliableBlockHistory extends BlockHistory {
 
     private static final double INACCURACY = 0.01f;
-    private static final double CLUE_REVEAL_CHANCE = 0.8f;
 
     private static final double TIME_REVEAL_CHANCE = 0.8f;
     private static final double USER_COMPONENT_REVEAL_CHANCE = 0.8f;
@@ -28,15 +28,15 @@ public class UnreliableBlockHistory extends BlockHistory {
     private final Random random;
 
     public UnreliableBlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), "minecraft:air", "unknown");
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), "minecraft:air", "unknown", (byte) 0);
     }
 
-    public UnreliableBlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor);
+    public UnreliableBlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor, byte cleansuitArmor) {
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor, cleansuitArmor);
     }
 
-    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor) {
-        super(time, user, position, material, action, tool, skinColor);
+    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleansuitArmor) {
+        super(time, user, position, material, action, tool, skinColor, cleansuitArmor);
         this.random = this.getRandom();
     }
 
@@ -50,7 +50,7 @@ public class UnreliableBlockHistory extends BlockHistory {
     }
 
     public Component getClueComponent() {
-        if (random.nextDouble() > CLUE_REVEAL_CHANCE) {
+        if (random.nextDouble() < CleansuitManager.getHideClueChance(getCleansuitArmor())) {
             return ColdCase.translate("clue.not_found").withStyle(ChatFormatting.GRAY);
         }
 

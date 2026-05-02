@@ -2,6 +2,7 @@ package com.daqem.coldcase.event;
 
 import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.model.action.BlockAction;
+import com.daqem.coldcase.util.CleansuitManager;
 import com.daqem.coldcase.util.SkinColorManager;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
@@ -16,9 +17,11 @@ public class EntityEvents {
             if (source.getEntity() instanceof ServerPlayer serverPlayer) {
                 ResourceLocation entityLocation = entity.getType().arch$registryName();
                 if (entityLocation != null) {
-                    String tool = BuiltInRegistries.ITEM.getKey(serverPlayer.getMainHandItem().getItem()).toString();
+                    String tool = BuiltInRegistries.ITEM.getKey(serverPlayer.getMainHandItem()
+                            .getItem()).toString();
                     String skinColor = SkinColorManager.getSkinColor(serverPlayer);
-                    
+                    byte cleansuitArmor = CleansuitManager.getCleansuitArmorAsByte(serverPlayer);
+
                     Services.BLOCK.insertEntity(
                             serverPlayer.getUUID(),
                             entity.level().dimension().location().toString(),
@@ -26,7 +29,8 @@ public class EntityEvents {
                             entityLocation.toString(),
                             BlockAction.KILL_ENTITY,
                             tool,
-                            skinColor
+                            skinColor,
+                            cleansuitArmor
                     );
                 }
             }

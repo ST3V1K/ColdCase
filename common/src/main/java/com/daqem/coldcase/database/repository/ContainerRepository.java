@@ -1,8 +1,8 @@
 package com.daqem.coldcase.database.repository;
 
 import com.daqem.coldcase.command.filter.FilterList;
-import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.database.Database;
+import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.model.action.ItemAction;
 import com.daqem.coldcase.model.history.ContainerHistory;
 import com.daqem.coldcase.model.history.IHistory;
@@ -171,7 +171,8 @@ public class ContainerRepository extends Repository {
                 }
                 ResourceLocation itemLocation = item.getItem().arch$registryName();
                 if (itemLocation != null) {
-                    materialStatement.setString(1, itemLocation.toString().replace("minecraft:", ""));
+                    materialStatement.setString(1, itemLocation.toString()
+                            .replace("minecraft:", ""));
                     materialStatement.addBatch();
 
                     itemStatement.setLong(1, time);
@@ -229,7 +230,8 @@ public class ContainerRepository extends Repository {
                     }
                     ResourceLocation itemLocation = item.getItem().arch$registryName();
                     if (itemLocation != null) {
-                        materialStatement.setString(1, itemLocation.toString().replace("minecraft:", ""));
+                        materialStatement.setString(1, itemLocation.toString()
+                                .replace("minecraft:", ""));
                         materialStatement.addBatch();
 
                         itemStatement.setLong(1, time);
@@ -238,7 +240,8 @@ public class ContainerRepository extends Repository {
                         itemStatement.setInt(4, x);
                         itemStatement.setInt(5, y);
                         itemStatement.setInt(6, z);
-                        itemStatement.setString(7, itemLocation.toString().replace("minecraft:", ""));
+                        itemStatement.setString(7, itemLocation.toString()
+                                .replace("minecraft:", ""));
                         itemStatement.setBytes(8, item.getTagBytes(level));
                         itemStatement.setInt(9, item.getCount());
                         itemStatement.setInt(10, entry.getKey().getId());
@@ -288,7 +291,8 @@ public class ContainerRepository extends Repository {
                         resultSet.getString(7),
                         patch,
                         resultSet.getInt(9),
-                        resultSet.getInt(10)
+                        resultSet.getInt(10),
+                        resultSet.getByte(11)
                 ));
             }
         } catch (SQLException e) {
@@ -335,7 +339,8 @@ public class ContainerRepository extends Repository {
                         resultSet.getString(7),
                         patch,
                         resultSet.getInt(9),
-                        resultSet.getInt(10)
+                        resultSet.getInt(10),
+                        resultSet.getByte(11)
                 ));
             }
         } catch (SQLException e) {
@@ -420,7 +425,8 @@ public class ContainerRepository extends Repository {
                         resultSet.getString(7),
                         patch,
                         resultSet.getInt(9),
-                        resultSet.getInt(10)));
+                        resultSet.getInt(10),
+                        resultSet.getByte(11)));
             }
             return blockHistory;
         } catch (SQLException exception) {

@@ -69,7 +69,8 @@ public class ColdCaseBlockService {
                     blockHistory.getMaterial(),
                     (BlockAction) blockHistory.getAction(),
                     blockHistory.getTool(),
-                    blockHistory.getSkinColor()
+                    blockHistory.getSkinColor(),
+                    blockHistory.getCleansuitArmor()
             );
         }
         return history;

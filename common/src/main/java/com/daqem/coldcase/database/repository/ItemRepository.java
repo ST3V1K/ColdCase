@@ -42,6 +42,7 @@ public class ItemRepository extends Repository {
                     data blob DEFAULT NULL,
                     amount integer NOT NULL,
                     action integer NOT NULL,
+                    cleansuit_armor tinyint DEFAULT 0,
                     FOREIGN KEY(user) REFERENCES users(id),
                     FOREIGN KEY(level) REFERENCES levels(id),
                     FOREIGN KEY(type) REFERENCES materials(id)
@@ -60,6 +61,7 @@ public class ItemRepository extends Repository {
                         data blob DEFAULT NULL,
                         amount int NOT NULL,
                         action int NOT NULL,
+                        cleansuit_armor tinyint DEFAULT 0,
                         FOREIGN KEY(user) REFERENCES users(id),
                         FOREIGN KEY(level) REFERENCES levels(id),
                         FOREIGN KEY(type) REFERENCES materials(id)
@@ -82,7 +84,7 @@ public class ItemRepository extends Repository {
         database.execute(sql, false);
     }
 
-    public void insert(long time, String userUuid, Level level, int x, int y, int z, SimpleItemStack item, int action) {
+    public void insert(long time, String userUuid, Level level, int x, int y, int z, SimpleItemStack item, int action, byte cleansuitArmor) {
         if (item.isEmpty()) {
             return;
         }
@@ -99,14 +101,14 @@ public class ItemRepository extends Repository {
         }
 
         String itemQuery = """
-                INSERT INTO items(time, user, level, x, y, z, type, data, amount, action)
+                INSERT INTO items(time, user, level, x, y, z, type, data, amount, action, cleansuit_armor)
                 VALUES(?, (
                     SELECT id FROM users WHERE uuid = ?
                 ), (
                     SELECT id FROM levels WHERE name = ?
                 ), ?, ?, ?, (
                     SELECT id FROM materials WHERE name = ?
-                ), ?, ?, ?);
+                ), ?, ?, ?, ?);
                 """;
 
         ResourceLocation itemLocation = item.getItem().arch$registryName();
@@ -128,6 +130,7 @@ public class ItemRepository extends Repository {
                 preparedStatement.setBytes(8, item.getTagBytes(level));
                 preparedStatement.setInt(9, item.getCount());
                 preparedStatement.setInt(10, action);
+                preparedStatement.setByte(11, cleansuitArmor);
                 database.queue.add(preparedStatement);
             } catch (SQLException exception) {
                 com.daqem.coldcase.ColdCase.LOGGER.error("Failed to insert item into database", exception);
@@ -135,7 +138,7 @@ public class ItemRepository extends Repository {
         }
     }
 
-    public void insertMap(long time, String userUuid, Level level, int x, int y, int z, Map<ItemAction, List<SimpleItemStack>> itemsMap) {
+    public void insertMap(long time, String userUuid, Level level, int x, int y, int z, Map<ItemAction, List<SimpleItemStack>> itemsMap, byte cleansuitArmor) {
         String insertMaterialQuery = """
                 INSERT OR IGNORE INTO materials(name)
                 VALUES(?);
@@ -149,14 +152,14 @@ public class ItemRepository extends Repository {
         }
 
         String insertItemQuery = """
-                INSERT INTO items(time, user, level, x, y, z, type, data, amount, action)
+                INSERT INTO items(time, user, level, x, y, z, type, data, amount, action, cleansuit_armor)
                 VALUES(?, (
                     SELECT id FROM users WHERE uuid = ?
                 ), (
                     SELECT id FROM levels WHERE name = ?
                 ), ?, ?, ?, (
                     SELECT id FROM materials WHERE name = ?
-                ), ?, ?, ?);
+                ), ?, ?, ?, ?);
                 """;
 
         try {
@@ -183,6 +186,7 @@ public class ItemRepository extends Repository {
                         itemStatement.setBytes(8, item.getTagBytes(level));
                         itemStatement.setInt(9, item.getCount());
                         itemStatement.setInt(10, entry.getKey().getId());
+                        itemStatement.setByte(11, cleansuitArmor);
                         itemStatement.addBatch();
                     }
                 }
@@ -197,7 +201,7 @@ public class ItemRepository extends Repository {
     public List<ItemHistory> getItemHistory(Level level, String levelName, int x, int y, int z) {
         List<ItemHistory> itemHistory = new ArrayList<>();
         String query = """
-                SELECT items.time, users.name, users.uuid, items.x, items.y, items.z, materials.name, items.data, items.amount, items.action
+                SELECT items.time, users.name, users.uuid, items.x, items.y, items.z, materials.name, items.data, items.amount, items.action, items.cleansuit_armor
                 FROM items
                 INNER JOIN users ON items.user = users.id
                 INNER JOIN levels ON items.level = (
@@ -228,7 +232,9 @@ public class ItemRepository extends Repository {
                         resultSet.getString(7),
                         patch,
                         resultSet.getInt(9),
-                        resultSet.getInt(10)));
+                        resultSet.getInt(10),
+                        resultSet.getByte(11)
+                ));
             }
         } catch (SQLException e) {
             com.daqem.coldcase.ColdCase.LOGGER.error("Failed to get item history", e);
@@ -243,7 +249,7 @@ public class ItemRepository extends Repository {
         @Nullable String excludeMaterials = filterList.getExcludeMaterialsString();
 
         String query = """
-                SELECT items.time, users.name, users.uuid, items.x, items.y, items.z, materials.name, items.data, items.amount, items.action
+                SELECT items.time, users.name, users.uuid, items.x, items.y, items.z, materials.name, items.data, items.amount, items.action, items.cleansuit_armor
                 FROM items
                 INNER JOIN users ON items.user = users.id
                 INNER JOIN levels ON items.level = levels.id
@@ -312,7 +318,9 @@ public class ItemRepository extends Repository {
                         resultSet.getString(7),
                         patch,
                         resultSet.getInt(9),
-                        resultSet.getInt(10)));
+                        resultSet.getInt(10),
+                        resultSet.getByte(11)
+                ));
             }
             return itemHistory;
         } catch (SQLException exception) {

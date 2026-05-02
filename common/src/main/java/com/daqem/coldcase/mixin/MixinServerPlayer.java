@@ -141,7 +141,7 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
     public void coldcase$tick(CallbackInfo ci) {
         EnvExecutor.getInEnv(EnvType.SERVER, () -> () -> {
             if (!coldcase$itemQueue.isEmpty()) {
-                Services.ITEM.insertMap(getUUID(), level(), blockPosition(), new HashMap<>(coldcase$itemQueue));
+                Services.ITEM.insertMap(this, blockPosition(), new HashMap<>(coldcase$itemQueue));
                 coldcase$itemQueue.clear();
             }
             return null;
