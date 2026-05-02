@@ -15,16 +15,23 @@ import java.util.UUID;
 
 public class BlockHistory extends History {
 
-
     private final String material;
+    private final String tool;
+    private final String skinColor;
 
     public BlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction));
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), "minecraft:air", "unknown");
     }
 
-    public BlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action) {
+    public BlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor) {
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor);
+    }
+
+    public BlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor) {
         super(time, user, position, action);
         this.material = material;
+        this.tool = tool;
+        this.skinColor = skinColor;
     }
 
     @Override
@@ -64,5 +71,13 @@ public class BlockHistory extends History {
 
     public String getMaterial() {
         return material;
+    }
+
+    public String getTool() {
+        return tool;
+    }
+
+    public String getSkinColor() {
+        return skinColor;
     }
 }

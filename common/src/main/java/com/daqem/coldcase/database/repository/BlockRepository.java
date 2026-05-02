@@ -2,6 +2,7 @@ package com.daqem.coldcase.database.repository;
 
 import com.daqem.coldcase.command.filter.FilterList;
 import com.daqem.coldcase.database.Database;
+import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.model.history.BlockHistory;
 import com.daqem.coldcase.model.history.IHistory;
 import org.jetbrains.annotations.Nullable;
@@ -32,9 +33,13 @@ public class BlockRepository extends Repository {
                 	z integer NOT NULL,
                 	type integer NOT NULL,
                 	action integer NOT NULL,
+                	tool integer DEFAULT 1,
+                	skin_color integer DEFAULT 1,
                 	FOREIGN KEY(user) REFERENCES users(id),
                 	FOREIGN KEY(level) REFERENCES levels(id),
-                	FOREIGN KEY(type) REFERENCES materials(id)
+                	FOREIGN KEY(type) REFERENCES materials(id),
+                	FOREIGN KEY(tool) REFERENCES tools(id),
+                	FOREIGN KEY(skin_color) REFERENCES skin_colors(id)
                 );
                 """;
         if (isMysql()) {
@@ -48,9 +53,13 @@ public class BlockRepository extends Repository {
                     	z int NOT NULL,
                     	type int NOT NULL,
                     	action int NOT NULL,
+                    	tool int DEFAULT 1,
+                    	skin_color int DEFAULT 1,
                     	FOREIGN KEY(user) REFERENCES users(id),
                     	FOREIGN KEY(level) REFERENCES levels(id),
-                    	FOREIGN KEY(type) REFERENCES materials(id)
+                    	FOREIGN KEY(type) REFERENCES materials(id),
+                    	FOREIGN KEY(tool) REFERENCES tools(id),
+                    	FOREIGN KEY(skin_color) REFERENCES skin_colors(id)
                     )
                     ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4;
                     """;
@@ -70,7 +79,7 @@ public class BlockRepository extends Repository {
         database.execute(sql, false);
     }
 
-    public void insertMaterial(long time, String userUuid, String levelName, int x, int y, int z, String material, int blockAction) {
+    public void insertMaterial(long time, String userUuid, String levelName, int x, int y, int z, String material, int blockAction, String tool, String skinColor) {
         String materialQuery = """
                 INSERT OR IGNORE INTO materials(name)
                 VALUES(?);
@@ -84,26 +93,34 @@ public class BlockRepository extends Repository {
         }
 
         String blockQuery = """
-                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action)
+                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color)
                 VALUES(?, (
                     SELECT id FROM users WHERE uuid = ?
                 ), (
                     SELECT id FROM levels WHERE name = ?
                 ), ?, ?, ?, (
                     SELECT id FROM materials WHERE name = ?
-                ), ?);
+                ), ?, (
+                    SELECT id FROM tools WHERE name = ?
+                ), (
+                    SELECT id FROM skin_colors WHERE name = ?
+                ));
                 """;
 
         if (isMysql()) {
             blockQuery = """
-                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action)
+                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color)
                     VALUES(?, (
                         SELECT id FROM users WHERE uuid = ?
                     ), (
                         SELECT id FROM levels WHERE name = ?
                     ), ?, ?, ?, (
                         SELECT id FROM materials WHERE name = ?
-                    ), ?);
+                    ), ?, (
+                        SELECT id FROM tools WHERE name = ?
+                    ), (
+                        SELECT id FROM skin_colors WHERE name = ?
+                    ));
                     """;
         }
 
@@ -111,6 +128,9 @@ public class BlockRepository extends Repository {
             PreparedStatement materialStatement = database.prepareStatement(materialQuery);
             materialStatement.setString(1, material);
             database.queue.add(materialStatement);
+
+            Services.TOOL.insert(tool);
+            Services.SKIN_COLOR.insert(skinColor);
 
             PreparedStatement blockStatement = database.prepareStatement(blockQuery);
             blockStatement.setLong(1, time);
@@ -121,13 +141,15 @@ public class BlockRepository extends Repository {
             blockStatement.setInt(6, z);
             blockStatement.setString(7, material);
             blockStatement.setInt(8, blockAction);
+            blockStatement.setString(9, tool);
+            blockStatement.setString(10, skinColor);
             database.queue.add(blockStatement);
         } catch (SQLException exception) {
             com.daqem.coldcase.ColdCase.LOGGER.error("Failed to insert block into database", exception);
         }
     }
 
-    public void insertEntity(long time, String userUuid, String levelName, int x, int y, int z, String entity, int blockAction) {
+    public void insertEntity(long time, String userUuid, String levelName, int x, int y, int z, String entity, int blockAction, String tool, String skinColor) {
         String materialQuery = """
                 INSERT OR IGNORE INTO entities(name)
                 VALUES(?);
@@ -141,36 +163,47 @@ public class BlockRepository extends Repository {
         }
 
         String blockQuery = """
-                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action)
+                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color)
                 VALUES(?, (
                     SELECT id FROM users WHERE uuid = ?
                 ), (
                     SELECT id FROM levels WHERE name = ?
                 ), ?, ?, ?, (
                     SELECT id FROM entities WHERE name = ?
-                ), ?);
+                ), ?, (
+                    SELECT id FROM tools WHERE name = ?
+                ), (
+                    SELECT id FROM skin_colors WHERE name = ?
+                ));
                 """;
 
         if (isMysql()) {
             blockQuery = """
-                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action)
+                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color)
                     VALUES(?, (
                         SELECT id FROM users WHERE uuid = ?
                     ), (
                         SELECT id FROM levels WHERE name = ?
                     ), ?, ?, ?, (
                         SELECT id FROM entities WHERE name = ?
-                    ), ?);
+                    ), ?, (
+                        SELECT id FROM tools WHERE name = ?
+                    ), (
+                        SELECT id FROM skin_colors WHERE name = ?
+                    ));
                     """;
         }
 
 
         try {
             PreparedStatement materialStatement = database.prepareStatement(materialQuery);
-            PreparedStatement blockStatement = database.prepareStatement(blockQuery);
             materialStatement.setString(1, entity);
             database.queue.add(materialStatement);
 
+            Services.TOOL.insert(tool);
+            Services.SKIN_COLOR.insert(skinColor);
+
+            PreparedStatement blockStatement = database.prepareStatement(blockQuery);
             blockStatement.setLong(1, time);
             blockStatement.setString(2, userUuid);
             blockStatement.setString(3, levelName);
@@ -179,6 +212,8 @@ public class BlockRepository extends Repository {
             blockStatement.setInt(6, z);
             blockStatement.setString(7, entity);
             blockStatement.setInt(8, blockAction);
+            blockStatement.setString(9, tool);
+            blockStatement.setString(10, skinColor);
             database.queue.add(blockStatement);
         } catch (SQLException exception) {
             com.daqem.coldcase.ColdCase.LOGGER.error("Failed to insert block into database", exception);
@@ -192,13 +227,15 @@ public class BlockRepository extends Repository {
     private <T extends BlockHistory> List<IHistory> getBlockHistory(String levelName, int x, int y, int z, BlockHistoryFactory factory) {
         List<IHistory> blockHistory = new ArrayList<>();
         String query = """
-                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action
+                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action, tools.name, skin_colors.name
                 FROM blocks
                 INNER JOIN users ON blocks.user = users.id
                 INNER JOIN levels ON blocks.level = (
                     SELECT id FROM levels WHERE name = ?
                 )
                 INNER JOIN materials ON blocks.type = materials.id
+                LEFT JOIN tools ON blocks.tool = tools.id
+                LEFT JOIN skin_colors ON blocks.skin_color = skin_colors.id
                 WHERE blocks.level = levels.id AND blocks.x = ? AND blocks.y = ? AND blocks.z = ? AND (blocks.action = 0 OR blocks.action = 1)
                 ORDER BY blocks.time DESC
                 """;
@@ -218,7 +255,9 @@ public class BlockRepository extends Repository {
                         resultSet.getInt(5),
                         resultSet.getInt(6),
                         resultSet.getString(7),
-                        resultSet.getInt(8)
+                        resultSet.getInt(8),
+                        resultSet.getString(9),
+                        resultSet.getString(10)
                 ));
             }
         } catch (SQLException e) {
@@ -234,13 +273,15 @@ public class BlockRepository extends Repository {
     private List<IHistory> getInteractionHistory(String levelName, int x, int y, int z, BlockHistoryFactory factory) {
         List<IHistory> blockHistory = new ArrayList<>();
         String query = """
-                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action
+                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action, tools.name, skin_colors.name
                 FROM blocks
                 INNER JOIN users ON blocks.user = users.id
                 INNER JOIN levels ON blocks.level = (
                     SELECT id FROM levels WHERE name = ?
                 )
                 INNER JOIN materials ON blocks.type = materials.id
+                LEFT JOIN tools ON blocks.tool = tools.id
+                LEFT JOIN skin_colors ON blocks.skin_color = skin_colors.id
                 WHERE blocks.level = levels.id AND blocks.x = ? AND blocks.y = ? AND blocks.z = ? AND blocks.action = 2
                 ORDER BY blocks.time DESC
                 """;
@@ -260,7 +301,9 @@ public class BlockRepository extends Repository {
                         resultSet.getInt(5),
                         resultSet.getInt(6),
                         resultSet.getString(7),
-                        resultSet.getInt(8)
+                        resultSet.getInt(8),
+                        resultSet.getString(9),
+                        resultSet.getString(10)
                 ));
             }
         } catch (SQLException e) {
@@ -311,13 +354,17 @@ public class BlockRepository extends Repository {
                         WHEN blocks.action = 3 THEN entities.name
                         ELSE materials.name
                     END AS type_name,
-                    blocks.action
+                    blocks.action,
+                    tools.name,
+                    skin_colors.name
                 FROM
                     blocks
                 INNER JOIN users ON blocks.user = users.id
                 INNER JOIN levels ON blocks.level = levels.id
                 LEFT JOIN materials ON blocks.type = materials.id AND blocks.action != 3
                 LEFT JOIN entities ON blocks.type = entities.id AND blocks.action = 3
+                LEFT JOIN tools ON blocks.tool = tools.id
+                LEFT JOIN skin_colors ON blocks.skin_color = skin_colors.id
                 WHERE
                     levels.name = ?
                     AND blocks.time > ?
@@ -379,7 +426,9 @@ public class BlockRepository extends Repository {
                         resultSet.getInt(5),
                         resultSet.getInt(6),
                         resultSet.getString(7),
-                        resultSet.getInt(8)));
+                        resultSet.getInt(8),
+                        resultSet.getString(9),
+                        resultSet.getString(10)));
             }
             return blockHistory;
         } catch (SQLException exception) {
@@ -389,6 +438,6 @@ public class BlockRepository extends Repository {
     }
 
     private interface BlockHistoryFactory {
-        BlockHistory create(long time, String name, String uuid, int x, int y, int z, String material, int blockAction);
+        BlockHistory create(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor);
     }
 }

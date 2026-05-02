@@ -6,8 +6,10 @@ import com.daqem.coldcase.model.Time;
 import com.daqem.coldcase.model.User;
 import com.daqem.coldcase.model.action.BlockAction;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Random;
 import java.util.UUID;
@@ -26,11 +28,15 @@ public class UnreliableBlockHistory extends BlockHistory {
     private final Random random;
 
     public UnreliableBlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction));
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), "minecraft:air", "unknown");
     }
 
-    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action) {
-        super(time, user, position, material, action);
+    public UnreliableBlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor) {
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor);
+    }
+
+    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor) {
+        super(time, user, position, material, action, tool, skinColor);
         this.random = this.getRandom();
     }
 
@@ -50,12 +56,13 @@ public class UnreliableBlockHistory extends BlockHistory {
 
         User user = getUser();
         boolean isPartialUser = user.getName().endsWith("...");
-        
+
         MutableComponent timeStr = getTimeComponent();
         MutableComponent userStr = getUserComponent(user, isPartialUser);
-        
-        boolean isUnknownUser = userStr.getString().equals(ColdCase.translate("clue.user.unknown").getString());
-        
+
+        boolean isUnknownUser = userStr.getString()
+                .equals(ColdCase.translate("clue.user.unknown").getString());
+
         MutableComponent colorStr = getSkinColorComponent(isPartialUser, isUnknownUser);
         MutableComponent toolStr = getToolComponent();
 
@@ -78,7 +85,7 @@ public class UnreliableBlockHistory extends BlockHistory {
         if (random.nextDouble() > USER_COMPONENT_REVEAL_CHANCE) {
             return ColdCase.translate("clue.user.unknown");
         }
-        
+
         String name = user.getName();
         if (isPartialUser) {
             return ColdCase.translate("clue.user.start_with", String.valueOf(name.charAt(0)));
@@ -92,18 +99,26 @@ public class UnreliableBlockHistory extends BlockHistory {
             if (random.nextDouble() > SKIN_COLOR_REVEAL_CHANCE) {
                 return ColdCase.translate("clue.skin_color", ColdCase.translate("clue.hard_to_tell"));
             }
-            // TODO: Implement real logic for skin color
-            return ColdCase.translate("clue.skin_color", ColdCase.translate("clue.hard_to_tell"));
+            if (getSkinColor() == null || getSkinColor().equals("unknown")) {
+                return ColdCase.translate("clue.skin_color", ColdCase.translate("clue.hard_to_tell"));
+            }
+            return ColdCase.translate("clue.skin_color", Component.literal(getSkinColor()));
         }
         return Component.empty();
     }
 
     private MutableComponent getToolComponent() {
-        if (random.nextDouble() > TOOL_REVEAL_CHANCE) {
-            return ColdCase.translate("clue.tool", ColdCase.translate("clue.unknown"));
+        if (getAction() == BlockAction.BREAK_BLOCK) {
+            if (random.nextDouble() > TOOL_REVEAL_CHANCE) {
+                return ColdCase.translate("clue.tool", ColdCase.translate("clue.unknown"));
+            }
+            if (getTool() == null || getTool().equals("minecraft:air")) {
+                return ColdCase.translate("clue.tool", Component.literal("their hands"));
+            }
+            return ColdCase.translate("clue.tool", Component.translatable(BuiltInRegistries.ITEM.get(ResourceLocation.parse(getTool()))
+                    .getDescriptionId()));
         }
-        // TODO: Implement real logic for tool used
-        return ColdCase.translate("clue.tool", ColdCase.translate("clue.unknown"));
+        return Component.empty();
     }
 
     @Override

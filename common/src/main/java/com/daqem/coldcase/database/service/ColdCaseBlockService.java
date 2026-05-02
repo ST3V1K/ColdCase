@@ -67,7 +67,9 @@ public class ColdCaseBlockService {
                     blockHistory.getUser(),
                     blockHistory.getPosition(),
                     blockHistory.getMaterial(),
-                    (BlockAction) blockHistory.getAction()
+                    (BlockAction) blockHistory.getAction(),
+                    blockHistory.getTool(),
+                    blockHistory.getSkinColor()
             );
         }
         return history;

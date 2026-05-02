@@ -67,6 +67,8 @@ public class ColdCase {
         Services.USERNAME.createTable();
         Services.LEVEL.createTable();
         Services.ENTITY.createTable();
+        Services.TOOL.createTable();
+        Services.SKIN_COLOR.createTable();
         Services.BLOCK.createTable();
         Services.CONTAINER.createTable();
         Services.SESSION.createTable();

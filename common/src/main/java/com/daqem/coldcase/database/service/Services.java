@@ -14,4 +14,6 @@ public interface Services {
     SessionService SESSION = new SessionService(com.daqem.coldcase.ColdCase.getDatabase());
     UsernameService USERNAME = new UsernameService(com.daqem.coldcase.ColdCase.getDatabase());
     UserService USER = new UserService(com.daqem.coldcase.ColdCase.getDatabase());
+    ToolService TOOL = new ToolService(com.daqem.coldcase.ColdCase.getDatabase());
+    SkinColorService SKIN_COLOR = new SkinColorService(com.daqem.coldcase.ColdCase.getDatabase());
 }

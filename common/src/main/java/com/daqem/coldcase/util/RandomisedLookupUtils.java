@@ -50,7 +50,7 @@ public class RandomisedLookupUtils {
     private static void handleBlockLookup(ColdCaseServerPlayer player, Level level, BlockPos pos, Direction direction) {
         Services.COLD_CASE_BLOCK.getBlockHistoryAsync(
                 level,
-                pos.relative(direction),
+                direction != null ? pos.relative(direction) : pos,
                 player::coldcase$sendMagnifyingGlassMessage);
     }
 

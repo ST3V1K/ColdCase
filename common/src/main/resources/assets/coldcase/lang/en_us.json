@@ -54,14 +54,14 @@
   "item.coldcase.cleanwork_boots": "Cleanwork Boots",
   "coldcase.clue.not_found": "No clues found.",
   "coldcase.clue.found.header": "You found a clue!",
-  "coldcase.clue.found.body": "%s\n%s%s\n%s",
+  "coldcase.clue.found.body": "%s\n%s%s%s",
   "coldcase.clue.time": "Happened around %s.",
   "coldcase.clue.time.unknown": "It is unknown when this happened.",
   "coldcase.clue.user": "The culprit was %s.",
   "coldcase.clue.user.start_with": "The culprit's name starts with '%s'.",
   "coldcase.clue.user.unknown": "The culprit is unknown.",
   "coldcase.clue.skin_color": "\nTheir skin color is %s.",
-  "coldcase.clue.tool": "The tool used was %s.",
+  "coldcase.clue.tool": "\nThe tool used was %s.",
   "coldcase.clue.unknown": "unknown",
   "coldcase.clue.hard_to_tell": "hard to tell"
 }

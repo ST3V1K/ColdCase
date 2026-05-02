@@ -2,6 +2,7 @@ package com.daqem.coldcase.event;
 
 import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.model.action.SessionAction;
+import com.daqem.coldcase.util.SkinColorManager;
 import com.mojang.authlib.GameProfile;
 import dev.architectury.event.events.common.PlayerEvent;
 
@@ -25,6 +26,8 @@ public class PlayerJoinEvent {
                     player.getOnPos(),
                     SessionAction.JOIN
             );
+            
+            SkinColorManager.fetchSkinColorAsync(player);
         });
     }
 }

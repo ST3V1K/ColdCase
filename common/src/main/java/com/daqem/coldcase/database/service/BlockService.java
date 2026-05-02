@@ -30,14 +30,14 @@ public class BlockService {
         blockRepository.createIndexes();
     }
 
-    public void insertMaterial(UUID userUuid, String levelName, BlockPos pos, String material, BlockAction blockAction) {
+    public void insertMaterial(UUID userUuid, String levelName, BlockPos pos, String material, BlockAction blockAction, String tool, String skinColor) {
         material = material.replace("minecraft:", "");
-        blockRepository.insertMaterial(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), material, blockAction.getId());
+        blockRepository.insertMaterial(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), material, blockAction.getId(), tool, skinColor);
     }
 
-    public void insertEntity(UUID userUuid, String levelName, BlockPos pos, String entity, BlockAction blockAction) {
+    public void insertEntity(UUID userUuid, String levelName, BlockPos pos, String entity, BlockAction blockAction, String tool, String skinColor) {
         entity = entity.replace("minecraft:", "");
-        blockRepository.insertEntity(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), entity, blockAction.getId());
+        blockRepository.insertEntity(System.currentTimeMillis(), userUuid.toString(), levelName, pos.getX(), pos.getY(), pos.getZ(), entity, blockAction.getId(), tool, skinColor);
     }
 
     public List<IHistory> getBlockHistory(Level level, BlockPos pos) {
