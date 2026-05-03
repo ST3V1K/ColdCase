@@ -13,27 +13,20 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Random;
-import java.util.UUID;
 
 public class UnreliableBlockHistory extends BlockHistory {
 
-    private static final double INACCURACY = 0.01f;
-
     private static final double TIME_REVEAL_CHANCE = 0.8f;
+    private static final double TIME_INACCURACY = 0.01f;
+
     private static final double USER_COMPONENT_REVEAL_CHANCE = 0.8f;
-    private static final double PARTIAL_USER_REVEAL_CHANCE = 0.2f;
+    private static final double PARTIAL_USER_REVEAL_CHANCE = 0.8f;
+
     private static final double SKIN_COLOR_REVEAL_CHANCE = 0.8f;
+
     private static final double TOOL_REVEAL_CHANCE = 0.8f;
 
     private final Random random;
-
-    public UnreliableBlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), "minecraft:air", "unknown", (byte) 0);
-    }
-
-    public UnreliableBlockHistory(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor, byte cleansuitArmor) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), material, BlockAction.fromId(blockAction), tool, skinColor, cleansuitArmor);
-    }
 
     public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleansuitArmor) {
         super(time, user, position, material, action, tool, skinColor, cleansuitArmor);
@@ -126,7 +119,7 @@ public class UnreliableBlockHistory extends BlockHistory {
         long now = System.currentTimeMillis();
         long startTime = super.getTime().time();
         long realElapsed = now - startTime;
-        double driftFactor = 1 + random.nextDouble(-INACCURACY, INACCURACY);
+        double driftFactor = 1 + random.nextDouble(-TIME_INACCURACY, TIME_INACCURACY);
         long skewedElapsed = Math.round(realElapsed * driftFactor);
         return new Time(now - skewedElapsed);
     }
