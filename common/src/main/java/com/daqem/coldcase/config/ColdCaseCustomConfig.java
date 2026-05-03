@@ -18,10 +18,10 @@ public class ColdCaseCustomConfig {
     public static final Supplier<Double> toolRevealChance;
     public static final Supplier<Double> timeInaccuracy;
 
-    public static final Supplier<Double> cleansuitHelmetHideChance;
-    public static final Supplier<Double> cleansuitChestplateHideChance;
-    public static final Supplier<Double> cleansuitLeggingsHideChance;
-    public static final Supplier<Double> cleansuitBootsHideChance;
+    public static final Supplier<Double> cleanworkHelmetHideChance;
+    public static final Supplier<Double> cleanworkChestplateHideChance;
+    public static final Supplier<Double> cleanworkPantsHideChance;
+    public static final Supplier<Double> cleanworkBootsHideChance;
 
     public static final Supplier<String> timeFormatYears;
     public static final Supplier<String> timeFormatDays;
@@ -66,19 +66,19 @@ public class ColdCaseCustomConfig {
                 .define("timeInaccuracy", 0.01, 0.0, 1.0);
         config.pop();
 
-        config.push("cleansuit");
-        cleansuitHelmetHideChance = config.comment("The chance for a cleansuit helmet to hide evidence.")
+        config.push("cleanwork");
+        cleanworkHelmetHideChance = config.comment("The chance for a Cleanwork helmet to hide evidence.")
                 .onlyOnServer()
-                .define("cleansuitHelmetHideChance", 0.15, 0.0, 1.0);
-        cleansuitChestplateHideChance = config.comment("The chance for a cleansuit chestplate to hide evidence.")
+                .define("cleanworkHelmetHideChance", 0.15, 0.0, 1.0);
+        cleanworkChestplateHideChance = config.comment("The chance for a Cleanwork chestplate to hide evidence.")
                 .onlyOnServer()
-                .define("cleansuitChestplateHideChance", 0.15, 0.0, 1.0);
-        cleansuitLeggingsHideChance = config.comment("The chance for a cleansuit leggings to hide evidence.")
+                .define("cleanworkChestplateHideChance", 0.15, 0.0, 1.0);
+        cleanworkPantsHideChance = config.comment("The chance for a Cleanwork pants to hide evidence.")
                 .onlyOnServer()
-                .define("cleansuitLeggingsHideChance", 0.15, 0.0, 1.0);
-        cleansuitBootsHideChance = config.comment("The chance for a cleansuit boots to hide evidence.")
+                .define("cleanworkPantsHideChance", 0.15, 0.0, 1.0);
+        cleanworkBootsHideChance = config.comment("The chance for a Cleanwork boots to hide evidence.")
                 .onlyOnServer()
-                .define("cleansuitBootsHideChance", 0.15, 0.0, 1.0);
+                .define("cleanworkBootsHideChance", 0.15, 0.0, 1.0);
         config.pop();
 
         config.push("messages");

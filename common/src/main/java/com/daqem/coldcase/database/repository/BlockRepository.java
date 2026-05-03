@@ -35,7 +35,7 @@ public class BlockRepository extends Repository {
                 	action integer NOT NULL,
                 	tool integer DEFAULT 1,
                 	skin_color integer DEFAULT 1,
-                	cleansuit_armor tinyint DEFAULT 0,
+                	cleanwork_armor tinyint DEFAULT 0,
                 	FOREIGN KEY(user) REFERENCES users(id),
                 	FOREIGN KEY(level) REFERENCES levels(id),
                 	FOREIGN KEY(type) REFERENCES materials(id),
@@ -56,7 +56,7 @@ public class BlockRepository extends Repository {
                     	action int NOT NULL,
                     	tool int DEFAULT 1,
                     	skin_color int DEFAULT 1,
-                    	cleansuit_armor tinyint DEFAULT 0,
+                    	cleanwork_armor tinyint DEFAULT 0,
                     	FOREIGN KEY(user) REFERENCES users(id),
                     	FOREIGN KEY(level) REFERENCES levels(id),
                     	FOREIGN KEY(type) REFERENCES materials(id),
@@ -81,7 +81,7 @@ public class BlockRepository extends Repository {
         database.execute(sql, false);
     }
 
-    public void insertMaterial(long time, String userUuid, String levelName, int x, int y, int z, String material, int blockAction, String tool, String skinColor, byte cleansuitArmor) {
+    public void insertMaterial(long time, String userUuid, String levelName, int x, int y, int z, String material, int blockAction, String tool, String skinColor, byte cleanworkArmor) {
         String materialQuery = """
                 INSERT OR IGNORE INTO materials(name)
                 VALUES(?);
@@ -95,7 +95,7 @@ public class BlockRepository extends Repository {
         }
 
         String blockQuery = """
-                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleansuit_armor)
+                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleanwork_armor)
                 VALUES(?, (
                     SELECT id FROM users WHERE uuid = ?
                 ), (
@@ -111,7 +111,7 @@ public class BlockRepository extends Repository {
 
         if (isMysql()) {
             blockQuery = """
-                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleansuit_armor)
+                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleanwork_armor)
                     VALUES(?, (
                         SELECT id FROM users WHERE uuid = ?
                     ), (
@@ -145,14 +145,14 @@ public class BlockRepository extends Repository {
             blockStatement.setInt(8, blockAction);
             blockStatement.setString(9, tool);
             blockStatement.setString(10, skinColor);
-            blockStatement.setByte(11, cleansuitArmor);
+            blockStatement.setByte(11, cleanworkArmor);
             database.queue.add(blockStatement);
         } catch (SQLException exception) {
             com.daqem.coldcase.ColdCase.LOGGER.error("Failed to insert block into database", exception);
         }
     }
 
-    public void insertEntity(long time, String userUuid, String levelName, int x, int y, int z, String entity, int blockAction, String tool, String skinColor, byte cleansuitArmor) {
+    public void insertEntity(long time, String userUuid, String levelName, int x, int y, int z, String entity, int blockAction, String tool, String skinColor, byte cleanworkArmor) {
         String materialQuery = """
                 INSERT OR IGNORE INTO entities(name)
                 VALUES(?);
@@ -166,7 +166,7 @@ public class BlockRepository extends Repository {
         }
 
         String blockQuery = """
-                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleansuit_armor)
+                INSERT OR IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleanwork_armor)
                 VALUES(?, (
                     SELECT id FROM users WHERE uuid = ?
                 ), (
@@ -182,7 +182,7 @@ public class BlockRepository extends Repository {
 
         if (isMysql()) {
             blockQuery = """
-                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleansuit_armor)
+                    INSERT IGNORE INTO blocks(time, user, level, x, y, z, type, action, tool, skin_color, cleanwork_armor)
                     VALUES(?, (
                         SELECT id FROM users WHERE uuid = ?
                     ), (
@@ -217,7 +217,7 @@ public class BlockRepository extends Repository {
             blockStatement.setInt(8, blockAction);
             blockStatement.setString(9, tool);
             blockStatement.setString(10, skinColor);
-            blockStatement.setByte(11, cleansuitArmor);
+            blockStatement.setByte(11, cleanworkArmor);
             database.queue.add(blockStatement);
         } catch (SQLException exception) {
             com.daqem.coldcase.ColdCase.LOGGER.error("Failed to insert block into database", exception);
@@ -231,7 +231,7 @@ public class BlockRepository extends Repository {
     private <T extends BlockHistory> List<IHistory> getBlockHistory(String levelName, int x, int y, int z, BlockHistoryFactory factory) {
         List<IHistory> blockHistory = new ArrayList<>();
         String query = """
-                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action, tools.name, skin_colors.name, blocks.cleansuit_armor
+                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action, tools.name, skin_colors.name, blocks.cleanwork_armor
                 FROM blocks
                 INNER JOIN users ON blocks.user = users.id
                 INNER JOIN levels ON blocks.level = (
@@ -278,7 +278,7 @@ public class BlockRepository extends Repository {
     private List<IHistory> getInteractionHistory(String levelName, int x, int y, int z, BlockHistoryFactory factory) {
         List<IHistory> blockHistory = new ArrayList<>();
         String query = """
-                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action, tools.name, skin_colors.name, blocks.cleansuit_armor
+                SELECT blocks.time, users.name, users.uuid, blocks.x, blocks.y, blocks.z, materials.name, blocks.action, tools.name, skin_colors.name, blocks.cleanwork_armor
                 FROM blocks
                 INNER JOIN users ON blocks.user = users.id
                 INNER JOIN levels ON blocks.level = (
@@ -363,7 +363,7 @@ public class BlockRepository extends Repository {
                     blocks.action,
                     tools.name,
                     skin_colors.name,
-                    blocks.cleansuit_armor
+                    blocks.cleanwork_armor
                 FROM
                     blocks
                 INNER JOIN users ON blocks.user = users.id
@@ -447,6 +447,6 @@ public class BlockRepository extends Repository {
     }
 
     private interface BlockHistoryFactory {
-        BlockHistory create(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor, byte cleansuitArmor);
+        BlockHistory create(long time, String name, String uuid, int x, int y, int z, String material, int blockAction, String tool, String skinColor, byte cleanworkArmor);
     }
 }

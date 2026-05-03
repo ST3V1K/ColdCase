@@ -6,7 +6,7 @@ import com.daqem.coldcase.database.repository.ItemRepository;
 import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.model.action.ItemAction;
 import com.daqem.coldcase.model.history.ItemHistory;
-import com.daqem.coldcase.util.CleansuitManager;
+import com.daqem.coldcase.util.CleanworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -42,7 +42,7 @@ public class ItemService {
                     pos.getZ(),
                     item,
                     itemAction.getId(),
-                    CleansuitManager.getCleansuitArmorAsByte(player));
+                    CleanworkManager.getCleanworkArmorAsByte(player));
         }
     }
 
@@ -54,7 +54,7 @@ public class ItemService {
                 pos.getY(),
                 pos.getZ(),
                 itemsMap,
-                CleansuitManager.getCleansuitArmorAsByte(player));
+                CleanworkManager.getCleanworkArmorAsByte(player));
     }
 
     public List<ItemHistory> getFilteredItemHistory(Level level, FilterList filterList) {

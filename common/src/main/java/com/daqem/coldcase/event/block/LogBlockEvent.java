@@ -4,7 +4,7 @@ import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.event.AbstractEvent;
 import com.daqem.coldcase.model.action.BlockAction;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
-import com.daqem.coldcase.util.CleansuitManager;
+import com.daqem.coldcase.util.CleanworkManager;
 import com.daqem.coldcase.util.SkinColorManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,7 +21,7 @@ public class LogBlockEvent extends AbstractEvent {
             ServerPlayer serverPlayer = player.coldcase$asServerPlayer();
             String tool = BuiltInRegistries.ITEM.getKey(serverPlayer.getMainHandItem().getItem()).toString();
             String skinColor = SkinColorManager.getSkinColor(serverPlayer);
-            byte cleansuitArmor = CleansuitManager.getCleansuitArmorAsByte(serverPlayer);
+            byte cleanworkArmor = CleanworkManager.getCleanworkArmorAsByte(serverPlayer);
             
             Services.BLOCK.insertMaterial(
                     serverPlayer.getUUID(),
@@ -31,7 +31,7 @@ public class LogBlockEvent extends AbstractEvent {
                     blockAction,
                     tool,
                     skinColor,
-                    cleansuitArmor);
+                    cleanworkArmor);
         }
     }
 }

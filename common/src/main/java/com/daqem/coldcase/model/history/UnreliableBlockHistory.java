@@ -22,8 +22,8 @@ public class UnreliableBlockHistory extends BlockHistory {
 
     private final Random random;
 
-    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleansuitArmor) {
-        super(time, user, position, material, action, tool, skinColor, cleansuitArmor);
+    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleanworkArmor) {
+        super(time, user, position, material, action, tool, skinColor, cleanworkArmor);
         this.random = this.getRandom();
     }
 
@@ -64,18 +64,18 @@ public class UnreliableBlockHistory extends BlockHistory {
 
     private double getHideClueChance() {
         double hideChance = 0;
-        byte cleansuitArmor = getCleansuitArmor();
-        if ((cleansuitArmor & 1) != 0) {
-            hideChance += ColdCaseCustomConfig.cleansuitBootsHideChance.get();
+        byte cleanworkArmor = getCleanworkArmor();
+        if ((cleanworkArmor & 1) != 0) {
+            hideChance += ColdCaseCustomConfig.cleanworkBootsHideChance.get();
         }
-        if ((cleansuitArmor & 2) != 0) {
-            hideChance += ColdCaseCustomConfig.cleansuitLeggingsHideChance.get();
+        if ((cleanworkArmor & 2) != 0) {
+            hideChance += ColdCaseCustomConfig.cleanworkPantsHideChance.get();
         }
-        if ((cleansuitArmor & 4) != 0) {
-            hideChance += ColdCaseCustomConfig.cleansuitChestplateHideChance.get();
+        if ((cleanworkArmor & 4) != 0) {
+            hideChance += ColdCaseCustomConfig.cleanworkChestplateHideChance.get();
         }
-        if ((cleansuitArmor & 8) != 0) {
-            hideChance += ColdCaseCustomConfig.cleansuitHelmetHideChance.get();
+        if ((cleanworkArmor & 8) != 0) {
+            hideChance += ColdCaseCustomConfig.cleanworkHelmetHideChance.get();
         }
         return hideChance;
     }

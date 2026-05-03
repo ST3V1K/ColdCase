@@ -2,7 +2,7 @@ package com.daqem.coldcase.event;
 
 import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.model.action.BlockAction;
-import com.daqem.coldcase.util.CleansuitManager;
+import com.daqem.coldcase.util.CleanworkManager;
 import com.daqem.coldcase.util.SkinColorManager;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
@@ -20,7 +20,7 @@ public class EntityEvents {
                     String tool = BuiltInRegistries.ITEM.getKey(serverPlayer.getMainHandItem()
                             .getItem()).toString();
                     String skinColor = SkinColorManager.getSkinColor(serverPlayer);
-                    byte cleansuitArmor = CleansuitManager.getCleansuitArmorAsByte(serverPlayer);
+                    byte cleanworkArmor = CleanworkManager.getCleanworkArmorAsByte(serverPlayer);
 
                     Services.BLOCK.insertEntity(
                             serverPlayer.getUUID(),
@@ -30,7 +30,7 @@ public class EntityEvents {
                             BlockAction.KILL_ENTITY,
                             tool,
                             skinColor,
-                            cleansuitArmor
+                            cleanworkArmor
                     );
                 }
             }

@@ -17,20 +17,20 @@ import java.util.UUID;
 public class ItemHistory extends History {
 
     protected final SimpleItemStack itemStack;
-    private final byte cleansuitArmor;
+    private final byte cleanworkArmor;
 
     public ItemHistory(long time, String name, String uuid, int x, int y, int z, String material, DataComponentPatch data, int amount, int action) {
         this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), new SimpleItemStack(ResourceLocation.parse(material), amount, data), ItemAction.fromId(action), (byte) 0);
     }
 
-    public ItemHistory(long time, String name, String uuid, int x, int y, int z, String material, DataComponentPatch data, int amount, int action, byte cleansuitArmor) {
-        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), new SimpleItemStack(ResourceLocation.parse(material), amount, data), ItemAction.fromId(action), cleansuitArmor);
+    public ItemHistory(long time, String name, String uuid, int x, int y, int z, String material, DataComponentPatch data, int amount, int action, byte cleanworkArmor) {
+        this(new Time(time), new User(name, UUID.fromString(uuid)), new BlockPosition(x, y, z), new SimpleItemStack(ResourceLocation.parse(material), amount, data), ItemAction.fromId(action), cleanworkArmor);
     }
 
-    public ItemHistory(Time time, User user, BlockPosition position, SimpleItemStack itemStack, IAction action, byte cleansuitArmor) {
+    public ItemHistory(Time time, User user, BlockPosition position, SimpleItemStack itemStack, IAction action, byte cleanworkArmor) {
         super(time, user, position, action);
         this.itemStack = itemStack;
-        this.cleansuitArmor = cleansuitArmor;
+        this.cleanworkArmor = cleanworkArmor;
     }
 
     public SimpleItemStack getItemStack() {
@@ -63,7 +63,7 @@ public class ItemHistory extends History {
 
     }
 
-    public byte getCleansuitArmor() {
-        return cleansuitArmor;
+    public byte getCleanworkArmor() {
+        return cleanworkArmor;
     }
 }

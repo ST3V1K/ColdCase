@@ -1,4 +1,4 @@
 package com.daqem.coldcase.item.criminal.armor;
 
-public interface CleansuitArmorItem {
+public interface CleanworkArmorItem {
 }

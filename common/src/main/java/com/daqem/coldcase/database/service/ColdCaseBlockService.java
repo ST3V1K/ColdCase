@@ -70,7 +70,7 @@ public class ColdCaseBlockService {
                     (BlockAction) blockHistory.getAction(),
                     blockHistory.getTool(),
                     blockHistory.getSkinColor(),
-                    blockHistory.getCleansuitArmor()
+                    blockHistory.getCleanworkArmor()
             );
         }
         return history;
