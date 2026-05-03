@@ -1,9 +1,17 @@
 package com.daqem.coldcase;
 
 import com.daqem.coldcase.config.ColdCaseConfig;
+import com.daqem.coldcase.config.ColdCaseCustomConfig;
 import com.daqem.coldcase.database.Database;
-import com.daqem.coldcase.database.service.*;
-import com.daqem.coldcase.event.*;
+import com.daqem.coldcase.database.service.Services;
+import com.daqem.coldcase.event.ChatEvent;
+import com.daqem.coldcase.event.CommandEvent;
+import com.daqem.coldcase.event.EntityEvents;
+import com.daqem.coldcase.event.LevelLoadEvent;
+import com.daqem.coldcase.event.PlayerJoinEvent;
+import com.daqem.coldcase.event.PlayerQuitEvent;
+import com.daqem.coldcase.event.RegisterCommandEvent;
+import com.daqem.coldcase.event.TickEvents;
 import com.daqem.coldcase.event.block.BlockEvents;
 import com.daqem.coldcase.event.item.ItemEvents;
 import com.mojang.logging.LogUtils;
@@ -30,6 +38,7 @@ public class ColdCase {
 
     private static void initConfigs() {
         ColdCaseConfig.init();
+        ColdCaseCustomConfig.init();
     }
 
     private static void registerEvents() {
@@ -123,7 +132,8 @@ public class ColdCase {
     }
 
     public static MutableComponent themedTranslate(String str, Object... args) {
-        MutableComponent component = Component.translatable(MOD_ID + "." + str, args).withStyle(getTheme());
+        MutableComponent component = Component.translatable(MOD_ID + "." + str, args)
+                .withStyle(getTheme());
         if (ColdCaseConfig.serverSideOnlyMode.get()) {
             component = Component.literal(component.getString()).withStyle(component.getStyle());
         }
