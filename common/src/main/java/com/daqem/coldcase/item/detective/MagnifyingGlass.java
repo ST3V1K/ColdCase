@@ -3,6 +3,7 @@ package com.daqem.coldcase.item.detective;
 import com.daqem.coldcase.util.RandomisedLookupUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -10,10 +11,19 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
+
 public class MagnifyingGlass extends Item {
+
+    public static final List<Component> LORE = List.of(
+            Component.translatable("item.coldcase.magnifying_glass.use"),
+            Component.translatable("item.coldcase.magnifying_glass.left"),
+            Component.translatable("item.coldcase.magnifying_glass.right")
+    );
 
     public MagnifyingGlass(Properties props) {
         super(props);
@@ -41,5 +51,11 @@ public class MagnifyingGlass extends Item {
         }
 
         return InteractionResult.sidedSuccess(level.isClientSide());
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, ctx, tooltip, flag);
+        tooltip.addAll(LORE);
     }
 }
