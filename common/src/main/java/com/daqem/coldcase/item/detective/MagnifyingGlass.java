@@ -3,6 +3,7 @@ package com.daqem.coldcase.item.detective;
 import com.daqem.coldcase.util.RandomisedLookupUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -19,11 +20,7 @@ import java.util.List;
 
 public class MagnifyingGlass extends Item {
 
-    public static final List<Component> LORE = List.of(
-            Component.translatable("item.coldcase.magnifying_glass.use"),
-            Component.translatable("item.coldcase.magnifying_glass.left"),
-            Component.translatable("item.coldcase.magnifying_glass.right")
-    );
+    String LORE_KEY_FORMAT = "item.coldcase.magnifying_glass.lore.%d";
 
     public MagnifyingGlass(Properties props) {
         super(props);
@@ -56,6 +53,9 @@ public class MagnifyingGlass extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, ctx, tooltip, flag);
-        tooltip.addAll(LORE);
+        Language language = Language.getInstance();
+        for (int i = 1; language.has(LORE_KEY_FORMAT.formatted(i)); i++) {
+            tooltip.add(Component.translatable(LORE_KEY_FORMAT.formatted(i)));
+        }
     }
 }
