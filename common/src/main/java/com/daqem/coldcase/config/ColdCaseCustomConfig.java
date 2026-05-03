@@ -23,6 +23,8 @@ public class ColdCaseCustomConfig {
     public static final Supplier<Double> cleanworkPantsHideChance;
     public static final Supplier<Double> cleanworkBootsHideChance;
 
+    public static final Supplier<Integer> identityTheftDuration;
+
     public static final Supplier<String> timeFormatYears;
     public static final Supplier<String> timeFormatDays;
     public static final Supplier<String> timeFormatHours;
@@ -79,6 +81,12 @@ public class ColdCaseCustomConfig {
         cleanworkBootsHideChance = config.comment("The chance for a Cleanwork boots to hide evidence.")
                 .onlyOnServer()
                 .define("cleanworkBootsHideChance", 0.15, 0.0, 1.0);
+        config.pop();
+
+        config.push("other");
+        identityTheftDuration = config.comment("The duration of the Identity Theft effect in ticks.")
+                .onlyOnServer()
+                .define("identityTheftDuration", 20 * 60 * 2, 0, Integer.MAX_VALUE);
         config.pop();
 
         config.push("messages");

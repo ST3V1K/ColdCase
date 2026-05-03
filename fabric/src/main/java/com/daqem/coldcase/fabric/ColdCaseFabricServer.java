@@ -7,6 +7,6 @@ public class ColdCaseFabricServer implements DedicatedServerModInitializer {
 
     @Override
     public void onInitializeServer() {
-        ColdCase.init();
+        ColdCase.initServer();
     }
 }

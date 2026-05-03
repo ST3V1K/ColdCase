@@ -9,7 +9,7 @@ public class SideProxyNeoForge {
 
     public static class Server extends SideProxyNeoForge {
         Server() {
-            ColdCase.init();
+            ColdCase.initServer();
         }
     }
 

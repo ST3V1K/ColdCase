@@ -66,5 +66,6 @@
   "item.coldcase.cleanwork_armor.lore.1": "§bWear this to minimize forensic trace.",
   "item.coldcase.cleanwork_armor.lore.2": "§3Degrades fidelity of recovered evidence.",
   "item.coldcase.cleanwork_armor.lore.3": "§3Reduces identifier and action certainty.",
-  "item.coldcase.cleanwork_armor.lore.4": "§3Effects compound across equipped pieces."
+  "item.coldcase.cleanwork_armor.lore.4": "§3Effects compound across equipped pieces.",
+  "effect.coldcase.identity_theft": "Identity Theft"
 }

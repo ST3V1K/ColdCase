@@ -10,6 +10,7 @@ import net.neoforged.fml.common.Mod;
 public class ColdCaseNeoForge {
 
     public ColdCaseNeoForge(IEventBus modEventBus) {
+        ColdCase.init();
         ColdCaseNeoForgeItems.initialize(modEventBus);
 
         EnvExecutor.getEnvSpecific(
