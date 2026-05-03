@@ -15,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -41,7 +42,9 @@ public class ColdCaseFabricItems {
     );
 
     public static final IdentityTheft IDENTITY_THEFT = register(
-            new IdentityTheft(new Item.Properties().durability(1)),
+            new IdentityTheft(new Item.Properties()
+                    .stacksTo(1)
+                    .food(new FoodProperties.Builder().alwaysEdible().build())),
             "identity_theft"
     );
 

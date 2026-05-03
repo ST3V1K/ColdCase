@@ -10,6 +10,7 @@ import com.daqem.coldcase.item.detective.AutopsyKit;
 import com.daqem.coldcase.item.detective.MagnifyingGlass;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +39,9 @@ public class ColdCaseNeoForgeItems {
     public static final DeferredItem<IdentityTheft> IDENTITY_THEFT = ITEMS.registerItem(
             "identity_theft",
             IdentityTheft::new,
-            new Item.Properties().durability(1)
+            new Item.Properties()
+                    .stacksTo(1)
+                    .food(new FoodProperties.Builder().alwaysEdible().build())
     );
 
     public static final DeferredItem<CleanworkHelmet> CLEANWORK_HELMET = ITEMS.registerItem(
