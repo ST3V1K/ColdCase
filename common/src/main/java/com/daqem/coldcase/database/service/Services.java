@@ -7,6 +7,7 @@ public interface Services {
     ChatService CHAT = new ChatService(com.daqem.coldcase.ColdCase.getDatabase());
     CommandService COMMAND = new CommandService(com.daqem.coldcase.ColdCase.getDatabase());
     ContainerService CONTAINER = new ContainerService(com.daqem.coldcase.ColdCase.getDatabase());
+    DamageService DAMAGE = new DamageService(com.daqem.coldcase.ColdCase.getDatabase());
     EntityService ENTITY = new EntityService(com.daqem.coldcase.ColdCase.getDatabase());
     ItemService ITEM = new ItemService(com.daqem.coldcase.ColdCase.getDatabase());
     LevelService LEVEL = new LevelService(com.daqem.coldcase.ColdCase.getDatabase());

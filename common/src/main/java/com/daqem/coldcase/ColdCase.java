@@ -89,6 +89,7 @@ public class ColdCase {
         Services.CHAT.createTable();
         Services.COMMAND.createTable();
         Services.ITEM.createTable();
+        Services.DAMAGE.createTable();
 
         if (ColdCaseConfig.useIndexes.get()) {
             Services.BLOCK.createIndexes();
@@ -97,6 +98,7 @@ public class ColdCase {
             Services.CONTAINER.createIndexes();
             Services.ITEM.createIndexes();
             Services.SESSION.createIndexes();
+            Services.DAMAGE.createIndexes();
         }
 
         long end = System.currentTimeMillis();
