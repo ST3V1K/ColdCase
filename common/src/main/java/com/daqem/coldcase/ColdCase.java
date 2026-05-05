@@ -15,6 +15,7 @@ import com.daqem.coldcase.event.RegisterCommandEvent;
 import com.daqem.coldcase.event.TickEvents;
 import com.daqem.coldcase.event.block.BlockEvents;
 import com.daqem.coldcase.event.item.ItemEvents;
+import com.daqem.coldcase.item.ColdCaseItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,6 +30,7 @@ public class ColdCase {
     private static Database DATABASE;
 
     public static void init() {
+        ColdCaseItems.init();
         ColdCaseMobEffects.init();
     }
 

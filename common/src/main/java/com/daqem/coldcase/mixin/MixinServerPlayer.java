@@ -1,11 +1,11 @@
 package com.daqem.coldcase.mixin;
 
-import com.daqem.coldcase.ColdCase;
 import com.daqem.coldcase.block.container.ContainerHandler;
 import com.daqem.coldcase.block.container.ContainerTransactionManager;
 import com.daqem.coldcase.block.container.ContainersTransactionManager;
 import com.daqem.coldcase.block.container.IContainerTransactionManager;
 import com.daqem.coldcase.command.page.Page;
+import com.daqem.coldcase.config.ColdCaseCustomConfig;
 import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.event.item.DropItemEvent;
 import com.daqem.coldcase.model.SimpleItemStack;
@@ -16,8 +16,8 @@ import com.daqem.coldcase.player.ColdCaseServerPlayer;
 import com.mojang.authlib.GameProfile;
 import dev.architectury.utils.EnvExecutor;
 import net.fabricmc.api.EnvType;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.MenuProvider;
@@ -94,8 +94,7 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
             }
         }
 
-        serverPlayer.sendSystemMessage(ColdCase.translate("clue.not_found")
-                .withStyle(ChatFormatting.GRAY));
+        serverPlayer.sendSystemMessage(Component.literal(ColdCaseCustomConfig.clueNotFound.get()));
     }
 
     @Unique

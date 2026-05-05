@@ -37,10 +37,6 @@ public class UnreliableBlockHistory extends BlockHistory {
     }
 
     public Component getClueComponent() {
-        if (random.nextDouble() < getHideClueChance()) {
-            return ColdCase.literal(ColdCaseCustomConfig.clueNotFound.get());
-        }
-
         User user = getUser();
         boolean isPartialUser = user.getName().endsWith("...");
 
@@ -55,14 +51,27 @@ public class UnreliableBlockHistory extends BlockHistory {
 
         MutableComponent header = ColdCase.literal(ColdCaseCustomConfig.clueFoundHeader.get());
 
-        return header.append("§r\n")
-                .append(timeStr).append("§r\n")
-                .append(userStr).append("§r\n")
-                .append(colorStr).append("§r\n")
-                .append(toolStr).append("§r\n");
+        MutableComponent result = Component.empty();
+        if (!header.getString().isBlank()) {
+            result.append(header);
+        }
+        if (!timeStr.getString().isBlank()) {
+            result.append("\n").append(timeStr);
+        }
+        if (!userStr.getString().isBlank()) {
+            result.append("\n").append(userStr);
+        }
+        if (!colorStr.getString().isBlank()) {
+            result.append("\n").append(colorStr);
+        }
+        if (!toolStr.getString().isBlank()) {
+            result.append("\n").append(toolStr);
+        }
+
+        return result;
     }
 
-    private double getHideClueChance() {
+    private double getRevealChance(double baseRevealChance) {
         double hideChance = 0;
         byte cleanworkArmor = getCleanworkArmor();
         if ((cleanworkArmor & 1) != 0) {
@@ -77,7 +86,7 @@ public class UnreliableBlockHistory extends BlockHistory {
         if ((cleanworkArmor & 8) != 0) {
             hideChance += ColdCaseCustomConfig.cleanworkHelmetHideChance.get();
         }
-        return hideChance;
+        return baseRevealChance * hideChance;
     }
 
     private MutableComponent formatComponent(String format, String placeholder, Component value) {
@@ -98,7 +107,7 @@ public class UnreliableBlockHistory extends BlockHistory {
     }
 
     private MutableComponent getTimeComponent() {
-        if (random.nextDouble() > ColdCaseCustomConfig.timeRevealChance.get()) {
+        if (random.nextDouble() < getRevealChance(ColdCaseCustomConfig.timeRevealChance.get())) {
             return ColdCase.literal(ColdCaseCustomConfig.clueTimeUnknown.get());
         }
         return formatComponent(ColdCaseCustomConfig.clueTime.get(), "{time}", getFormattedTimeAgo());
@@ -140,7 +149,7 @@ public class UnreliableBlockHistory extends BlockHistory {
     }
 
     private MutableComponent getUserComponent(User user, boolean isPartialUser) {
-        if (random.nextDouble() > ColdCaseCustomConfig.userRevealChance.get()) {
+        if (random.nextDouble() < getRevealChance(ColdCaseCustomConfig.userRevealChance.get())) {
             return ColdCase.literal(ColdCaseCustomConfig.clueUserUnknown.get());
         }
 
@@ -156,7 +165,7 @@ public class UnreliableBlockHistory extends BlockHistory {
 
     private MutableComponent getSkinColorComponent(boolean isPartialUser, boolean isUnknownUser) {
         if (isUnknownUser || isPartialUser) {
-            if (random.nextDouble() > ColdCaseCustomConfig.skinColorRevealChance.get()) {
+            if (random.nextDouble() < getRevealChance(ColdCaseCustomConfig.skinColorRevealChance.get())) {
                 String hardToTell = ColdCaseCustomConfig.clueHardToTell.get();
                 return Component.literal(ColdCaseCustomConfig.clueSkinColor.get()
                         .replace("{skin_color}", hardToTell));
@@ -175,7 +184,7 @@ public class UnreliableBlockHistory extends BlockHistory {
 
     private MutableComponent getToolComponent() {
         if (getAction() == BlockAction.BREAK_BLOCK) {
-            if (random.nextDouble() > ColdCaseCustomConfig.toolRevealChance.get()) {
+            if (random.nextDouble() < getRevealChance(ColdCaseCustomConfig.toolRevealChance.get())) {
                 String unknown = ColdCaseCustomConfig.clueUnknown.get();
                 return Component.literal(ColdCaseCustomConfig.clueTool.get()
                         .replace("{tool}", unknown));

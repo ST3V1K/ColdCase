@@ -108,7 +108,7 @@ public class ColdCaseCustomConfig {
 
         clueNotFound = config.comment("Message when no clues are found.")
                 .onlyOnServer()
-                .define("clueNotFound", "No clues found.", 1, 100);
+                .define("clueNotFound", "§7No clues found.", 1, 100);
         clueFoundHeader = config.comment("Header for when a clue is found.")
                 .onlyOnServer()
                 .define("clueFoundHeader", "§eYou found a clue!", 1, 100);
