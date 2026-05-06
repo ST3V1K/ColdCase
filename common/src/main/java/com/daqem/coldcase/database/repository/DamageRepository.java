@@ -165,13 +165,13 @@ public class DamageRepository extends Repository {
             preparedStatement.setString(4, attackerUuid);
             preparedStatement.setString(5, attackerType);
             preparedStatement.setString(6, targetUuid);
-            
+
             if (attackerX != null) preparedStatement.setFloat(7, attackerX);
             else preparedStatement.setNull(7, Types.FLOAT);
-            
+
             if (attackerY != null) preparedStatement.setFloat(8, attackerY);
             else preparedStatement.setNull(8, Types.FLOAT);
-            
+
             if (attackerZ != null) preparedStatement.setFloat(9, attackerZ);
             else preparedStatement.setNull(9, Types.FLOAT);
 
@@ -256,21 +256,21 @@ public class DamageRepository extends Repository {
                 UUID id = UUID.fromString(rs.getString("id"));
                 long time = rs.getLong("time");
                 String type = rs.getString("type");
-                
+
                 UUID attackerUuid = rs.getString("attacker_uuid") != null ? UUID.fromString(rs.getString("attacker_uuid")) : null;
                 String attackerName = rs.getString("attacker_name");
                 String attackerType = rs.getString("attacker_type");
-                
+
                 UUID targetUuid = UUID.fromString(rs.getString("target_uuid"));
                 String targetName = rs.getString("target_name");
-                
-                Float attackerX = rs.getObject("attacker_x", Float.class);
-                Float attackerY = rs.getObject("attacker_y", Float.class);
-                Float attackerZ = rs.getObject("attacker_z", Float.class);
+
+                Float attackerX = getNullableFloat(rs, "attacker_x"); // rs.getObject("attacker_x", Float.class);
+                Float attackerY = getNullableFloat(rs, "attacker_y"); // rs.getObject("attacker_y", Float.class);
+                Float attackerZ = getNullableFloat(rs, "attacker_z"); // rs.getObject("attacker_z", Float.class);
                 Vec3 attackerPos = (attackerX != null && attackerY != null && attackerZ != null) ? new Vec3(attackerX, attackerY, attackerZ) : null;
 
-                Float attackerPitch = rs.getObject("attacker_pitch", Float.class);
-                Float attackerYaw = rs.getObject("attacker_yaw", Float.class);
+                Float attackerPitch = getNullableFloat(rs, "attacker_pitch"); // rs.getObject("attacker_pitch", Float.class);
+                Float attackerYaw = getNullableFloat(rs, "attacker_yaw"); // rs.getObject("attacker_yaw", Float.class);
 
                 float targetX = rs.getFloat("target_x");
                 float targetY = rs.getFloat("target_y");
@@ -279,7 +279,7 @@ public class DamageRepository extends Repository {
 
                 float targetPitch = rs.getFloat("target_pitch");
                 float targetYaw = rs.getFloat("target_yaw");
-                
+
                 String levelName = rs.getString("level_name");
 
                 Map<EquipmentSlot, ItemStack> attackerEquipment = new HashMap<>();
@@ -314,5 +314,11 @@ public class DamageRepository extends Repository {
             ColdCase.LOGGER.error("Failed to get damage logs from database", exception);
         }
         return null;
+    }
+
+    @Nullable
+    private Float getNullableFloat(ResultSet rs, String column) throws SQLException {
+        float value = rs.getFloat(column);
+        return rs.wasNull() ? null : value;
     }
 }

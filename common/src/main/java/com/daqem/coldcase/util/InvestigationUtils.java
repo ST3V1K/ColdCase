@@ -12,7 +12,7 @@ public class InvestigationUtils {
     private static final Random RANDOM = new Random();
 
     public static String getTimeWindow(long timeSinceDeath) {
-        long seconds = timeSinceDeath / 20;
+        long seconds = timeSinceDeath / 1000;
         if (seconds < 60) return "Within the last minute";
         if (seconds < 300) return "1-5 minutes ago";
         if (seconds < 600) return "5-10 minutes ago";

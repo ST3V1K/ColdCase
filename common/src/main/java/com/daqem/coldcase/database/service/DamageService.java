@@ -59,7 +59,7 @@ public class DamageService {
     }
 
     @Nullable
-    public List<DamageLog> getDamageHistory(HolderLookup.Provider provider, @Nullable UUID playerUuid, long startTime, long endTime) {
+    public List<DamageLog> getDamageHistory(HolderLookup.Provider provider, @Nullable UUID playerUuid, @Nullable Long startTime, @Nullable Long endTime) {
         return damageRepository.getDamageHistory(provider, playerUuid, startTime, endTime);
     }
 }
