@@ -5,6 +5,7 @@ import com.daqem.coldcase.config.ColdCaseCustomConfig;
 import com.daqem.coldcase.database.Database;
 import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.effect.ColdCaseMobEffects;
+import com.daqem.coldcase.entity.ColdCaseEntities;
 import com.daqem.coldcase.event.ChatEvent;
 import com.daqem.coldcase.event.CommandEvent;
 import com.daqem.coldcase.event.EntityEvents;
@@ -30,6 +31,7 @@ public class ColdCase {
     private static Database DATABASE;
 
     public static void init() {
+        ColdCaseEntities.init();
         ColdCaseItems.init();
         ColdCaseMobEffects.init();
     }

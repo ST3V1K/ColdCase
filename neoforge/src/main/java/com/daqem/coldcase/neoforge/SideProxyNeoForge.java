@@ -1,6 +1,7 @@
 package com.daqem.coldcase.neoforge;
 
 import com.daqem.coldcase.ColdCase;
+import com.daqem.coldcase.client.ColdCaseClient;
 
 public class SideProxyNeoForge {
 
@@ -15,6 +16,7 @@ public class SideProxyNeoForge {
 
     public static class Client extends SideProxyNeoForge {
         Client() {
+            ColdCaseClient.init();
         }
     }
 }

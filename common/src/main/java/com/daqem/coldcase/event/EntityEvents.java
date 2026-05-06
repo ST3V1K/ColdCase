@@ -1,6 +1,8 @@
 package com.daqem.coldcase.event;
 
 import com.daqem.coldcase.database.service.Services;
+import com.daqem.coldcase.entity.ColdCaseEntities;
+import com.daqem.coldcase.entity.DeadBodyEntity;
 import com.daqem.coldcase.model.action.BlockAction;
 import com.daqem.coldcase.util.CleanworkManager;
 import com.daqem.coldcase.util.ItemStackSerializer;
@@ -21,24 +23,41 @@ public class EntityEvents {
 
     public static void registerEvents() {
         EntityEvent.LIVING_DEATH.register((entity, source) -> {
-            if (source.getEntity() instanceof ServerPlayer serverPlayer) {
-                ResourceLocation entityLocation = entity.getType().arch$registryName();
-                if (entityLocation != null) {
-                    String tool = BuiltInRegistries.ITEM.getKey(serverPlayer.getMainHandItem()
-                            .getItem()).toString();
-                    String skinColor = SkinColorManager.getSkinColor(serverPlayer);
-                    byte cleanworkArmor = CleanworkManager.getCleanworkArmorAsByte(serverPlayer);
+            if (entity instanceof ServerPlayer targetPlayer) {
+                // Existing entity location block action logging
+                if (source.getEntity() instanceof ServerPlayer serverPlayer) {
+                    ResourceLocation entityLocation = entity.getType().arch$registryName();
+                    if (entityLocation != null) {
+                        String tool = BuiltInRegistries.ITEM.getKey(serverPlayer.getMainHandItem()
+                                .getItem()).toString();
+                        String skinColor = SkinColorManager.getSkinColor(serverPlayer);
+                        byte cleanworkArmor = CleanworkManager.getCleanworkArmorAsByte(serverPlayer);
 
-                    Services.BLOCK.insertEntity(
-                            serverPlayer.getUUID(),
-                            entity.level().dimension().location().toString(),
-                            entity.blockPosition(),
-                            entityLocation.toString(),
-                            BlockAction.KILL_ENTITY,
-                            tool,
-                            skinColor,
-                            cleanworkArmor
-                    );
+                        Services.BLOCK.insertEntity(
+                                serverPlayer.getUUID(),
+                                entity.level().dimension().location().toString(),
+                                entity.blockPosition(),
+                                entityLocation.toString(),
+                                BlockAction.KILL_ENTITY,
+                                tool,
+                                skinColor,
+                                cleanworkArmor
+                        );
+                    }
+                }
+
+                // Spawn DeadBodyEntity
+                if (!targetPlayer.level().isClientSide()) {
+                    DeadBodyEntity deadBody = ColdCaseEntities.DEAD_BODY.get()
+                            .create(targetPlayer.level());
+                    if (deadBody != null) {
+                        deadBody.moveTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(), targetPlayer.getYRot(), targetPlayer.getXRot());
+                        deadBody.setDeceasedUuid(targetPlayer.getUUID());
+                        deadBody.setDeathTime(targetPlayer.level().getGameTime());
+                        deadBody.setDeceasedProfile(targetPlayer.getGameProfile());
+
+                        targetPlayer.level().addFreshEntity(deadBody);
+                    }
                 }
             }
             return EventResult.pass();
