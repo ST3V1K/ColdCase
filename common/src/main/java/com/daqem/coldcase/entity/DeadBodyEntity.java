@@ -1,5 +1,6 @@
 package com.daqem.coldcase.entity;
 
+import com.daqem.coldcase.model.DamageLog;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -8,6 +9,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -28,11 +30,13 @@ public class DeadBodyEntity extends Mob {
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_DECEASED_UUID = SynchedEntityData.defineId(DeadBodyEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Long> DATA_DEATH_TIME = SynchedEntityData.defineId(DeadBodyEntity.class, EntityDataSerializers.LONG);
+    private static final EntityDataAccessor<String> DATA_ATTACKER_SKIN_COLOR = SynchedEntityData.defineId(DeadBodyEntity.class, EntityDataSerializers.STRING);
 
     private static final long DESPAWN_TIME_TICKS = 144000;
 
     @Nullable
     private GameProfile deceasedProfile;
+    private List<DamageLog> damageLogs;
 
     public DeadBodyEntity(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -47,6 +51,7 @@ public class DeadBodyEntity extends Mob {
         super.defineSynchedData(builder);
         builder.define(DATA_DECEASED_UUID, Optional.empty());
         builder.define(DATA_DEATH_TIME, 0L);
+        builder.define(DATA_ATTACKER_SKIN_COLOR, "");
     }
 
     @Override
@@ -86,7 +91,10 @@ public class DeadBodyEntity extends Mob {
     }
 
     @Override
-    public boolean hurt(DamageSource damageSource, float f) {
+    public boolean hurt(DamageSource source, float amount) {
+        if (source.is(DamageTypes.GENERIC_KILL)) {
+            return super.hurt(source, amount);
+        }
         return false;
     }
 
@@ -123,6 +131,9 @@ public class DeadBodyEntity extends Mob {
             String name = profileTag.getString("Name");
             this.deceasedProfile = new GameProfile(uuid, name);
         }
+        if (compoundTag.contains("AttackerSkinColor")) {
+            this.entityData.set(DATA_ATTACKER_SKIN_COLOR, compoundTag.getString("AttackerSkinColor"));
+        }
     }
 
     @Override
@@ -141,6 +152,7 @@ public class DeadBodyEntity extends Mob {
             }
             compoundTag.put("DeceasedProfile", profileTag);
         }
+        compoundTag.putString("AttackerSkinColor", this.entityData.get(DATA_ATTACKER_SKIN_COLOR));
     }
 
     public void setDeceasedUuid(UUID uuid) {
@@ -173,6 +185,14 @@ public class DeadBodyEntity extends Mob {
             });
         }
         return this.deceasedProfile;
+    }
+    
+    public void setAttackerSkinColor(String skinColor) {
+        this.entityData.set(DATA_ATTACKER_SKIN_COLOR, skinColor);
+    }
+    
+    public String getAttackerSkinColor() {
+        return this.entityData.get(DATA_ATTACKER_SKIN_COLOR);
     }
 
     @Override

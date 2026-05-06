@@ -24,13 +24,14 @@ public class EntityEvents {
     public static void registerEvents() {
         EntityEvent.LIVING_DEATH.register((entity, source) -> {
             if (entity instanceof ServerPlayer targetPlayer) {
+                String attackerSkinColor = "";
                 // Existing entity location block action logging
                 if (source.getEntity() instanceof ServerPlayer serverPlayer) {
+                    attackerSkinColor = SkinColorManager.getSkinColor(serverPlayer);
                     ResourceLocation entityLocation = entity.getType().arch$registryName();
                     if (entityLocation != null) {
                         String tool = BuiltInRegistries.ITEM.getKey(serverPlayer.getMainHandItem()
                                 .getItem()).toString();
-                        String skinColor = SkinColorManager.getSkinColor(serverPlayer);
                         byte cleanworkArmor = CleanworkManager.getCleanworkArmorAsByte(serverPlayer);
 
                         Services.BLOCK.insertEntity(
@@ -40,7 +41,7 @@ public class EntityEvents {
                                 entityLocation.toString(),
                                 BlockAction.KILL_ENTITY,
                                 tool,
-                                skinColor,
+                                attackerSkinColor,
                                 cleanworkArmor
                         );
                     }
@@ -53,8 +54,9 @@ public class EntityEvents {
                     if (deadBody != null) {
                         deadBody.moveTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(), targetPlayer.getYRot(), targetPlayer.getXRot());
                         deadBody.setDeceasedUuid(targetPlayer.getUUID());
-                        deadBody.setDeathTime(targetPlayer.level().getGameTime());
+                        deadBody.setDeathTime(System.currentTimeMillis());
                         deadBody.setDeceasedProfile(targetPlayer.getGameProfile());
+                        deadBody.setAttackerSkinColor(attackerSkinColor);
 
                         targetPlayer.level().addFreshEntity(deadBody);
                     }
