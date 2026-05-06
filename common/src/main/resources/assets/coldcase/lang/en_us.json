@@ -67,5 +67,6 @@
   "item.coldcase.cleanwork_armor.lore.2": "§3Degrades fidelity of recovered evidence.",
   "item.coldcase.cleanwork_armor.lore.3": "§3Reduces identifier and action certainty.",
   "item.coldcase.cleanwork_armor.lore.4": "§3Effects compound across equipped pieces.",
-  "effect.coldcase.identity_theft": "Identity Theft"
+  "effect.coldcase.identity_theft": "Identity Theft",
+  "sound.coldcase.flies_ambient": "Flies"
 }

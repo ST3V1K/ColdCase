@@ -1,0 +1,9 @@
+{
+  "flies_ambient": {
+    "subtitle": "sound.coldcase.flies_ambient",
+    "sounds": [
+      "coldcase:fly/fly1", "coldcase:fly/fly2", "coldcase:fly/fly3", "coldcase:fly/fly4", "coldcase:fly/fly5",
+      "coldcase:fly/fly6", "coldcase:fly/fly7", "coldcase:fly/fly8", "coldcase:fly/fly9", "coldcase:fly/fly10"
+    ]
+  }
+}

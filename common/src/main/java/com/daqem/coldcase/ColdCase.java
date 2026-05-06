@@ -17,6 +17,7 @@ import com.daqem.coldcase.event.TickEvents;
 import com.daqem.coldcase.event.block.BlockEvents;
 import com.daqem.coldcase.event.item.ItemEvents;
 import com.daqem.coldcase.item.ColdCaseItems;
+import com.daqem.coldcase.sound.ColdCaseSoundEvents;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -34,6 +35,7 @@ public class ColdCase {
         ColdCaseEntities.init();
         ColdCaseItems.init();
         ColdCaseMobEffects.init();
+        ColdCaseSoundEvents.init();
     }
 
     public static void initServer() {

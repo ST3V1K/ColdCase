@@ -1,11 +1,15 @@
 package com.daqem.coldcase.entity;
 
-import com.daqem.coldcase.model.DamageLog;
+import com.daqem.coldcase.sound.ColdCaseSoundEvents;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -32,11 +36,10 @@ public class DeadBodyEntity extends Mob {
     private static final EntityDataAccessor<Long> DATA_DEATH_TIME = SynchedEntityData.defineId(DeadBodyEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<String> DATA_ATTACKER_SKIN_COLOR = SynchedEntityData.defineId(DeadBodyEntity.class, EntityDataSerializers.STRING);
 
-    private static final long DESPAWN_TIME_TICKS = 144000;
+    private static final long DESPAWN_TIME_MILLIS = 7200000;
 
     @Nullable
     private GameProfile deceasedProfile;
-    private List<DamageLog> damageLogs;
 
     public DeadBodyEntity(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -58,10 +61,39 @@ public class DeadBodyEntity extends Mob {
     public void baseTick() {
         super.baseTick();
 
-        if (!this.level().isClientSide()) {
+        Level level = this.level();
+        if (!level.isClientSide()) {
+            long now = System.currentTimeMillis();
             long deathTime = this.entityData.get(DATA_DEATH_TIME);
-            if (deathTime > 0 && this.level().getGameTime() - deathTime > DESPAWN_TIME_TICKS) {
+            if (deathTime > 0 && now - deathTime > DESPAWN_TIME_MILLIS) {
                 this.discard();
+            }
+
+            return;
+        }
+
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+
+        int flyCount = getFlyCount();
+        if (flyCount <= 0 || this.random.nextBoolean()) {
+            return;
+        }
+
+        if (flyCount > this.random.nextInt(100)) {
+            float dist = player.distanceTo(this);
+            float maxRange = 8;
+            if (dist < maxRange) {
+                float distVolume = 1 - dist / maxRange;
+                float flyVolume = Mth.map(flyCount, 2, 100, 0.15f, 0.5f);
+                float volume = distVolume * flyVolume;
+                level.playLocalSound(this,
+                        ColdCaseSoundEvents.FLIES_AMBIENT.get(),
+                        SoundSource.AMBIENT,
+                        volume,
+                        1.0F);
             }
         }
     }
@@ -91,26 +123,24 @@ public class DeadBodyEntity extends Mob {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if (source.is(DamageTypes.GENERIC_KILL)) {
-            return super.hurt(source, amount);
-        }
-        return false;
+    public boolean isInvulnerableTo(DamageSource source) {
+        return !source.is(DamageTypes.GENERIC_KILL) && !source.is(DamageTypes.FELL_OUT_OF_WORLD);
     }
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        Level level = this.level();
         ItemStack itemStack = player.getItemInHand(hand);
 
         if (itemStack.is(Items.LEAD) && this.canBeLeashed()) {
             this.setLeashedTo(player, true);
             itemStack.shrink(1);
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
 
         if (this.isLeashed() && this.getLeashHolder() == player) {
             this.dropLeash(true, !player.getAbilities().instabuild);
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
 
         return super.mobInteract(player, hand);
@@ -186,11 +216,11 @@ public class DeadBodyEntity extends Mob {
         }
         return this.deceasedProfile;
     }
-    
+
     public void setAttackerSkinColor(String skinColor) {
         this.entityData.set(DATA_ATTACKER_SKIN_COLOR, skinColor);
     }
-    
+
     public String getAttackerSkinColor() {
         return this.entityData.get(DATA_ATTACKER_SKIN_COLOR);
     }
@@ -207,5 +237,12 @@ public class DeadBodyEntity extends Mob {
 
     @Override
     public void setItemSlot(EquipmentSlot equipmentSlot, ItemStack itemStack) {
+    }
+
+    public int getFlyCount() {
+        long timeSinceDeath = System.currentTimeMillis() - getDeathTime();
+        if (timeSinceDeath < 60000)
+            return 0;
+        return Math.clamp(timeSinceDeath / 60000, 2, 100);
     }
 }
