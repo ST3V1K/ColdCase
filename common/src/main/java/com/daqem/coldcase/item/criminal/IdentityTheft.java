@@ -29,8 +29,9 @@ public class IdentityTheft extends ColdCaseItem {
                 && !level.isClientSide()
                 && stack.has(DataComponents.CUSTOM_NAME)) {
             setEffect(player, stack.getHoverName());
+            return super.finishUsingItem(stack, level, entity);
         }
-        return super.finishUsingItem(stack, level, entity);
+        return stack;
     }
 
     @Override
