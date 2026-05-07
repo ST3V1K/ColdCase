@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smithing_transform",
+  "base": {
+    "item": "minecraft:leather_helmet"
+  },
+  "addition": {
+    "item": "coldcase:cleanwork_cloth"
+  },
+  "template": [],
+  "result": {
+    "id": "coldcase:cleanwork_helmet"
+  }
+}

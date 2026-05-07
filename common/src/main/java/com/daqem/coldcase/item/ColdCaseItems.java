@@ -37,6 +37,13 @@ public class ColdCaseItems {
                     .food(new FoodProperties.Builder().alwaysEdible().build())
                     .arch$tab(COLD_CASE_TAB)));
 
+    public static final RegistrySupplier<Item> CLEANWORK_CLOTH = ITEMS.register("cleanwork_cloth",
+            () -> new ColdCaseItem(new Item.Properties().arch$tab(COLD_CASE_TAB)) {
+                protected String getLoreKeyFormat() {
+                    return "item.coldcase.cleanwork_cloth.lore.%d";
+                }
+            });
+
     public static final RegistrySupplier<Item> CLEANWORK_HELMET = ITEMS.register("cleanwork_helmet",
             () -> new CleanworkHelmet(new Item.Properties().durability(100)
                     .arch$tab(COLD_CASE_TAB)));
