@@ -1,5 +1,6 @@
 package com.daqem.coldcase.util;
 
+import com.daqem.coldcase.config.ColdCaseCustomConfig;
 import com.daqem.coldcase.model.DamageLog;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
@@ -36,32 +37,67 @@ public class InvestigationUtils {
     }
 
     public static List<DamageLog> getRevealedDamageLogs(List<DamageLog> logs, long timeSinceDeath) {
-        int injuriesToShow = Math.max(1, 10 - (int) (timeSinceDeath / 7200)); // Lose one log every 6 minutes
+        int injuriesToShow = Math.max(1, 10 - (int) (timeSinceDeath / ColdCaseCustomConfig.injuriesToShowDecay.get())); // Lose one log every 6 minutes
         return logs.subList(0, Math.min(injuriesToShow, logs.size()));
     }
 
     public static String getSuspectNameInfo(String attackerName, long timeSinceDeath) {
-        if (attackerName == null || timeSinceDeath > 144000) return "Unknown"; // 2 hours
-        if (timeSinceDeath < 12000) { // 10 minutes
+        if (attackerName == null) {
+            return "Unknown";
+        }
+        long maxTime = ColdCaseCustomConfig.suspectNameMaxTime.get();
+        if (timeSinceDeath > maxTime) {
+            return "Unknown";
+        }
+
+        float decayFactor = 1.0F - (timeSinceDeath / (float) maxTime);
+
+        double fullNameChance = ColdCaseCustomConfig.userRevealChance.get() * decayFactor;
+        if (RANDOM.nextDouble() < fullNameChance) {
+            return "Suspect identified as " + attackerName + ".";
+        }
+
+        double partialNameChance = ColdCaseCustomConfig.partialUserRevealChance.get() * decayFactor;
+        if (RANDOM.nextDouble() < partialNameChance) {
             char randomChar = attackerName.charAt(RANDOM.nextInt(attackerName.length()));
             return "Name may contain the letter '" + randomChar + "'.";
         }
+
         return "Too decomposed to determine.";
     }
 
     public static String getSuspectSkinInfo(String attackerSkinColor, long timeSinceDeath) {
-        if (attackerSkinColor == null || timeSinceDeath > 72000) return "Unknown"; // 1 hour
-        if (timeSinceDeath < 24000) { // 20 minutes
+        if (attackerSkinColor == null) {
+            return "Unknown";
+        }
+        long maxTime = ColdCaseCustomConfig.suspectSkinMaxTime.get();
+        if (timeSinceDeath > maxTime) {
+            return "Unknown";
+        }
+
+        float decayFactor = 1.0F - (timeSinceDeath / (float) maxTime);
+        double skinChance = ColdCaseCustomConfig.skinColorRevealChance.get() * decayFactor;
+
+        if (RANDOM.nextDouble() < skinChance) {
             return "Skin color appears to be " + attackerSkinColor + ".";
         }
+
         return "Skin is too decomposed to determine color.";
     }
 
     public static String getWeaponName(ItemStack weapon, long timeSinceDeath) {
-        if (weapon == null || weapon.isEmpty() || !weapon.has(DataComponents.CUSTOM_NAME))
+        if (weapon == null || weapon.isEmpty() || !weapon.has(DataComponents.CUSTOM_NAME)) {
             return "No special weapon detected.";
-        float chance = 1.0F - (timeSinceDeath / 144000F); // Chance decreases linearly over 2 hours
-        if (RANDOM.nextFloat() < chance) {
+        }
+        long maxTime = ColdCaseCustomConfig.weaponNameMaxTime.get();
+        if (timeSinceDeath > maxTime) {
+            return "Traces of a custom weapon were found, but the name is unrecoverable.";
+        }
+
+        float decayFactor = 1.0F - (timeSinceDeath / (float) maxTime);
+        double chance = ColdCaseCustomConfig.toolRevealChance.get() * decayFactor;
+
+        if (RANDOM.nextDouble() < chance) {
             return "Weapon was named: " + weapon.getHoverName().getString();
         }
         return "Traces of a custom weapon were found, but the name is unrecoverable.";

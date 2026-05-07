@@ -1,5 +1,6 @@
 package com.daqem.coldcase.item.detective;
 
+import com.daqem.coldcase.config.ColdCaseCustomConfig;
 import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.entity.DeadBodyEntity;
 import com.daqem.coldcase.item.ColdCaseItem;
@@ -37,7 +38,7 @@ public class AutopsyKit extends ColdCaseItem {
                 List<DamageLog> damageLogs = Services.DAMAGE.getDamageHistory(
                         level.registryAccess(),
                         deceasedUuid,
-                        deathTime - 60000,
+                        deathTime - ColdCaseCustomConfig.damageLogWindow.get(),
                         deathTime
                 );
 

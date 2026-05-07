@@ -11,6 +11,14 @@ public class ColdCaseCustomConfig {
     public static void init() {
     }
 
+    public static final Supplier<Integer> damageLogWindow;
+    public static final Supplier<Integer> injuriesToShowDecay;
+    public static final Supplier<Integer> suspectNameMaxTime;
+    public static final Supplier<Integer> suspectNamePartialTime;
+    public static final Supplier<Integer> suspectSkinMaxTime;
+    public static final Supplier<Integer> suspectSkinRevealTime;
+    public static final Supplier<Integer> weaponNameMaxTime;
+
     public static final Supplier<Double> timeRevealChance;
     public static final Supplier<Double> userRevealChance;
     public static final Supplier<Double> partialUserRevealChance;
@@ -46,6 +54,30 @@ public class ColdCaseCustomConfig {
 
     static {
         IConfigBuilder config = ConfigBuilders.newTomlConfig(ColdCase.MOD_ID, "coldcase-custom", true);
+
+        config.push("autopsy");
+        damageLogWindow = config.comment("The time in milliseconds to look back for damage logs.")
+                .onlyOnServer()
+                .define("damageLogWindow", 60000, 0, Integer.MAX_VALUE);
+        injuriesToShowDecay = config.comment("Time in milliseconds to lose one revealed injury log.")
+                .onlyOnServer()
+                .define("injuriesToShowDecay", 7200, 0, Integer.MAX_VALUE);
+        suspectNameMaxTime = config.comment("Time in milliseconds after which the suspect's name is 'Unknown'.")
+                .onlyOnServer()
+                .define("suspectNameMaxTime", 144000, 0, Integer.MAX_VALUE);
+        suspectNamePartialTime = config.comment("Time in milliseconds within which a partial suspect name is revealed.")
+                .onlyOnServer()
+                .define("suspectNamePartialTime", 12000, 0, Integer.MAX_VALUE);
+        suspectSkinMaxTime = config.comment("Time in milliseconds after which the suspect's skin color is 'Unknown'.")
+                .onlyOnServer()
+                .define("suspectSkinMaxTime", 72000, 0, Integer.MAX_VALUE);
+        suspectSkinRevealTime = config.comment("Time in milliseconds within which the suspect's skin color is revealed.")
+                .onlyOnServer()
+                .define("suspectSkinRevealTime", 24000, 0, Integer.MAX_VALUE);
+        weaponNameMaxTime = config.comment("Time in milliseconds after which the weapon name is unrecoverable.")
+                .onlyOnServer()
+                .define("weaponNameMaxTime", 144000, 0, Integer.MAX_VALUE);
+        config.pop();
 
         config.push("evidence");
         timeRevealChance = config.comment("The chance to reveal the time of an action.")
