@@ -13,7 +13,6 @@ import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.model.action.ItemAction;
 import com.daqem.coldcase.model.history.IHistory;
 import com.daqem.coldcase.model.history.UnreliableBlockHistory;
-import com.daqem.coldcase.model.history.UnreliableContainerHistory;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
 import com.mojang.authlib.GameProfile;
 import dev.architectury.utils.EnvExecutor;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mixin(ServerPlayer.class)
@@ -91,33 +91,39 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
         if (!historyList.isEmpty()) {
             List<IHistory> revealedHistories = new ArrayList<>();
             double currentRevealChance = ColdCaseCustomConfig.itemRevealBaseChance.get() / 100.0;
-            
+
             for (IHistory history : historyList) {
                 if (history.shouldReveal(currentRevealChance)) {
                     revealedHistories.add(history);
                     currentRevealChance *= ColdCaseCustomConfig.itemRevealFalloff.get();
                 } else {
-                    break; // Stop revealing if chance fails
+                    break; // Stop revealing once the random check fails
                 }
             }
 
             if (!revealedHistories.isEmpty()) {
-                // Store the revealed list for navigation
                 BlockPos locationPos = revealedHistories.get(0).getPosition().toBlockPos();
+
+                // Store the revealed list so the navigation command can look up clues by index.
                 ClueNavigationCommand.storePlayerHistoryList(serverPlayer.getUUID(), locationPos, revealedHistories);
 
-                // Send the header once
+                // Generate a stable UUID for this clue slot in the player's chat.
+                // The same UUID is reused on every navigation click so the client can
+                // replace the existing chat line rather than appending a new one.
+                UUID clueMessageId = UUID.randomUUID();
+                ClueNavigationCommand.storePlayerMessageId(serverPlayer.getUUID(), locationPos, clueMessageId);
+
+                // Send the header as a normal system message (it is never replaced).
                 serverPlayer.sendSystemMessage(Component.literal(ColdCaseCustomConfig.clueFoundHeader.get()));
-                
-                // Send the first (latest) revealed clue with interactive footer
+
+                // Build the initial clue component (index 0) with the navigation footer,
+                // then send it via the custom packet so the client can later replace it.
                 IHistory firstClue = revealedHistories.get(0);
-                if (firstClue instanceof UnreliableContainerHistory unreliableContainerHistory) {
-                    serverPlayer.sendSystemMessage(unreliableContainerHistory.getInteractiveClueComponent(0, revealedHistories.size(), firstClue.getPosition()));
-                } else {
-                    // For block history, we'll just send the clue component for now.
-                    // If interactive navigation is desired for block history too, this would need a similar interactive component.
-                    serverPlayer.sendSystemMessage(firstClue.getClueComponent());
-                }
+                net.minecraft.network.chat.MutableComponent clueComponent = firstClue.getClueComponent().copy();
+                clueComponent.append(com.daqem.coldcase.util.ClueComponentUtils.createNavigationFooter(
+                        0, revealedHistories.size(), firstClue.getPosition()));
+
+                com.daqem.coldcase.network.ColdCaseNetwork.sendClueUpdate(serverPlayer, clueMessageId, clueComponent);
                 return;
             }
         }

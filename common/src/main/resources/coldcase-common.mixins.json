@@ -3,7 +3,7 @@
   "package": "com.daqem.coldcase.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
-  "client": ["EntityRendererMixin"],
+  "client": ["EntityRendererMixin", "MixinChatComponent"],
   "mixins": [
     "ItemMixin", "MixinBucketItem", "MixinItemStack", "MixinServerPlayer", "PlayerMixin", "ProjectileMixin"
   ],
