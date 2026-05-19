@@ -16,6 +16,7 @@ public class ColdCaseCommand {
         dispatcher.register(commandWithPrefix("cs"));
         dispatcher.register(commandWithPrefix("grieflogger"));
         dispatcher.register(commandWithPrefix("gl"));
+        ClueNavigationCommand.register(dispatcher); // Register the new command
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> commandWithPrefix(String prefix) {

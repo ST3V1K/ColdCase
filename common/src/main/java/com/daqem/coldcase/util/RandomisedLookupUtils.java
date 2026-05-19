@@ -5,7 +5,6 @@ import com.daqem.coldcase.block.container.ContainerHandler;
 import com.daqem.coldcase.database.service.Services;
 import com.daqem.coldcase.model.history.IHistory;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
-import com.daqem.coldcase.thread.ThreadManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -75,23 +74,14 @@ public class RandomisedLookupUtils {
     }
 
     private static void fetchAndSendContainerHistory(ColdCaseServerPlayer player, Level level, List<BlockPos> positions) {
-        ThreadManager.submit(() -> {
-            List<IHistory> history = new ArrayList<>();
-            List<IHistory> containerHistory;
-
-            if (positions.size() > 1) {
-                containerHistory = Services.CONTAINER.getHistory(level, positions.get(0), positions.get(1));
-            } else {
-                containerHistory = Services.CONTAINER.getHistory(level, positions.getFirst());
-            }
-
-            List<IHistory> interactionHistory = Services.COLD_CASE_BLOCK.getInteractionHistory(level, positions);
-
-            history.addAll(containerHistory);
-            history.addAll(interactionHistory);
-            history.sort((a, b) -> Long.compare(b.getTime().time(), a.getTime().time()));
-            return history;
-        }, player::coldcase$sendMagnifyingGlassMessage);
+        Services.COLD_CASE_CONTAINER.getContainerHistoryAsync(level, positions, containerHistory -> {
+            List<IHistory> history = new ArrayList<>(containerHistory);
+            Services.COLD_CASE_BLOCK.getInteractionHistoryAsync(level, positions, interactionHistory -> {
+                history.addAll(interactionHistory);
+                history.sort((a, b) -> Long.compare(b.getOriginalTime(), a.getOriginalTime()));
+                player.coldcase$sendMagnifyingGlassMessage(history);
+            });
+        });
     }
 
     private static BlockPos getChestConnection(BlockState state, BlockPos pos) {

@@ -24,6 +24,11 @@ public class ColdCaseCustomConfig {
     public static final Supplier<Double> partialUserRevealChance;
     public static final Supplier<Double> skinColorRevealChance;
     public static final Supplier<Double> toolRevealChance;
+    public static final Supplier<Double> itemRevealChance;
+    public static final Supplier<Double> itemRevealBaseChance;
+    public static final Supplier<Double> itemRevealFalloff;
+    public static final Supplier<Integer> itemRevealFullChanceTime; // New config option
+    public static final Supplier<Integer> itemRevealZeroChanceTime; // New config option
     public static final Supplier<Double> timeInaccuracy;
 
     public static final Supplier<Double> cleanworkHelmetHideChance;
@@ -48,6 +53,7 @@ public class ColdCaseCustomConfig {
     public static final Supplier<String> clueUserUnknown;
     public static final Supplier<String> clueSkinColor;
     public static final Supplier<String> clueTool;
+    public static final Supplier<String> clueItem;
     public static final Supplier<String> clueUnknown;
     public static final Supplier<String> clueHardToTell;
 
@@ -95,6 +101,21 @@ public class ColdCaseCustomConfig {
         toolRevealChance = config.comment("The chance to reveal the tool used to perform an action.")
                 .onlyOnServer()
                 .define("toolRevealChance", 0.8, 0.0, 1.0);
+        itemRevealChance = config.comment("The base chance to reveal the item that was taken/placed (before time decay).")
+                .onlyOnServer()
+                .define("itemRevealChance", 0.8, 0.0, 1.0);
+        itemRevealBaseChance = config.comment("The base chance (in percent) to reveal the first item interaction in a container.")
+                .onlyOnServer()
+                .define("itemRevealBaseChance", 100.0, 0.0, 100.0);
+        itemRevealFalloff = config.comment("The multiplier (0.0-1.0) by which the reveal chance decreases for each subsequent item interaction.")
+                .onlyOnServer()
+                .define("itemRevealFalloff", 0.5, 0.0, 1.0);
+        itemRevealFullChanceTime = config.comment("Time in milliseconds after which item reveal chance starts to decay.")
+                .onlyOnServer()
+                .define("itemRevealFullChanceTime", 60000, 0, Integer.MAX_VALUE); // 1 minute
+        itemRevealZeroChanceTime = config.comment("Time in milliseconds after which item reveal chance becomes zero.")
+                .onlyOnServer()
+                .define("itemRevealZeroChanceTime", 3600000, 0, Integer.MAX_VALUE); // 1 hour
         timeInaccuracy = config.comment("The maximum inaccuracy of the time of an action (e.g. 0.1 for 10% inaccuracy).")
                 .onlyOnServer()
                 .define("timeInaccuracy", 0.01, 0.0, 1.0);
@@ -165,6 +186,9 @@ public class ColdCaseCustomConfig {
         clueTool = config.comment("Message for the tool used. Placeholder: {tool}")
                 .onlyOnServer()
                 .define("clueTool", "§aThe tool used was {tool}.", 1, 100);
+        clueItem = config.comment("Message for the item that was taken/placed. Placeholder: {item}")
+                .onlyOnServer()
+                .define("clueItem", "§aThe item was {item}.", 1, 100);
         clueUnknown = config.comment("Message for when a clue is unknown.")
                 .onlyOnServer()
                 .define("clueUnknown", "unknown", 1, 100);

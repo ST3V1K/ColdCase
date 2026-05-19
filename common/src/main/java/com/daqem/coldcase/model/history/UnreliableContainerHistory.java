@@ -5,35 +5,52 @@ import com.daqem.coldcase.config.ColdCaseCustomConfig;
 import com.daqem.coldcase.model.BlockPosition;
 import com.daqem.coldcase.model.Time;
 import com.daqem.coldcase.model.User;
-import com.daqem.coldcase.model.action.BlockAction;
+import com.daqem.coldcase.util.ClueComponentUtils;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.Date;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-public class UnreliableBlockHistory extends BlockHistory {
+public class UnreliableContainerHistory extends ContainerHistory {
 
     private final Random random;
 
-    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleanworkArmor) {
-        super(time, user, position, material, action, tool, skinColor, cleanworkArmor);
+    public UnreliableContainerHistory(ContainerHistory history) {
+        super(history.getTime(), history.getUser(), history.getPosition(), history.getItemStack(), history.getAction(), history.getCleanworkArmor());
+        this.random = this.getRandom();
+    }
+
+    public UnreliableContainerHistory(long time, String user, String uuid, int x, int y, int z, String material, DataComponentPatch data, int amount, int action, byte cleanworkArmor) {
+        super(time, user, uuid, x, y, z, material, data, amount, action, cleanworkArmor);
         this.random = this.getRandom();
     }
 
     @Override
-    public Component getComponent() {
-        return getTime().getFormattedTimeAgo().append(" ")
-                .append(getAction().getPrefix()).append(" ")
-                .append(getUser().getNameComponent()).append(" ")
-                .append(getAction().getPastTense()).append(" ")
-                .append(getMaterialComponent());
+    public double getChance() {
+        double chance = 50;
+        chance += getItemStack().getCount() * 0.5;
+        return Math.min(100, chance);
+    }
+
+    @Override
+    public String toString() {
+        return "UnreliableContainerHistory{" +
+                "time=" + getTime() +
+                ", user=" + getUser() +
+                ", position=" + getPosition() +
+                ", material=" + getItemStack().getItem().arch$registryName() +
+                ", data=" + getItemStack().getTag() +
+                ", amount=" + getItemStack().getCount() +
+                ", action=" + getAction() +
+                ", chance=" + getChance() +
+                '}';
     }
 
     public boolean shouldReveal(double currentRevealChance) {
@@ -51,7 +68,7 @@ public class UnreliableBlockHistory extends BlockHistory {
                 .equals(ColdCaseCustomConfig.clueUserUnknown.get());
 
         MutableComponent colorStr = getSkinColorComponent(isPartialUser, isUnknownUser);
-        MutableComponent toolStr = getToolComponent();
+        MutableComponent itemStr = getItemComponent();
 
         MutableComponent result = Component.empty();
 
@@ -64,12 +81,19 @@ public class UnreliableBlockHistory extends BlockHistory {
         if (!colorStr.getString().isBlank()) {
             result.append(Component.literal("\n")).append(colorStr);
         }
-        if (!toolStr.getString().isBlank()) {
-            result.append(Component.literal("\n")).append(toolStr);
+        if (!itemStr.getString().isBlank()) {
+            result.append(Component.literal("\n")).append(itemStr);
         }
 
         return result;
     }
+
+    public Component getInteractiveClueComponent(int currentClueIndex, int totalClues, BlockPosition containerPos) {
+        MutableComponent clue = (MutableComponent) getClueComponent();
+        clue.append(ClueComponentUtils.createNavigationFooter(currentClueIndex, totalClues, containerPos));
+        return clue;
+    }
+
 
     private double getRevealChance(double baseRevealChance) {
         double hideChance = 0;
@@ -86,6 +110,23 @@ public class UnreliableBlockHistory extends BlockHistory {
         if ((cleanworkArmor & 8) != 0) {
             hideChance += ColdCaseCustomConfig.cleanworkHelmetHideChance.get();
         }
+
+        // Apply time-based decay for item reveal chance
+        if (baseRevealChance == ColdCaseCustomConfig.itemRevealChance.get()) {
+            long timeElapsed = System.currentTimeMillis() - getTime().time();
+            long fullChanceTime = ColdCaseCustomConfig.itemRevealFullChanceTime.get();
+            long zeroChanceTime = ColdCaseCustomConfig.itemRevealZeroChanceTime.get();
+
+            if (timeElapsed > fullChanceTime) {
+                if (timeElapsed >= zeroChanceTime) {
+                    baseRevealChance = 0;
+                } else {
+                    double decayFactor = (double) (timeElapsed - fullChanceTime) / (zeroChanceTime - fullChanceTime);
+                    baseRevealChance *= (1.0 - decayFactor);
+                }
+            }
+        }
+
         return baseRevealChance * hideChance;
     }
 
@@ -118,7 +159,7 @@ public class UnreliableBlockHistory extends BlockHistory {
 
         long years = timeAgo / 31536000000L;
         long days = (timeAgo % 31536000000L) / 86400000L;
-        long hours = (timeAgo % 86400000L) / 3600000L;
+        long hours = (timeAgo % 3600000L) / 3600000L;
         long minutes = (timeAgo % 3600000L) / 60000L;
         long seconds = (timeAgo % 60000L) / 1000L;
 
@@ -170,34 +211,24 @@ public class UnreliableBlockHistory extends BlockHistory {
                 return Component.literal(ColdCaseCustomConfig.clueSkinColor.get()
                         .replace("{skin_color}", hardToTell));
             }
-            if (getSkinColor() == null || getSkinColor().equals("unknown")) {
+            if (getCleanworkArmor() == 0) {
                 String hardToTell = ColdCaseCustomConfig.clueHardToTell.get();
                 return Component.literal(ColdCaseCustomConfig.clueSkinColor.get()
                         .replace("{skin_color}", hardToTell));
             }
-            String skinColor = getSkinColor();
+            String skinColor = String.valueOf(getCleanworkArmor());
             return Component.literal(ColdCaseCustomConfig.clueSkinColor.get()
                     .replace("{skin_color}", skinColor));
         }
         return Component.empty();
     }
 
-    private MutableComponent getToolComponent() {
-        if (getAction() == BlockAction.BREAK_BLOCK) {
-            if (random.nextDouble() < getRevealChance(ColdCaseCustomConfig.toolRevealChance.get())) {
-                String unknown = ColdCaseCustomConfig.clueUnknown.get();
-                return Component.literal(ColdCaseCustomConfig.clueTool.get()
-                        .replace("{tool}", unknown));
-            }
-            if (getTool() == null || getTool().equals("minecraft:air")) {
-                return Component.literal(ColdCaseCustomConfig.clueTool.get()
-                        .replace("{tool}", "their hands"));
-            }
-            String tool = Component.translatable(BuiltInRegistries.ITEM.get(
-                    ResourceLocation.parse(getTool())).getDescriptionId()).getString();
-            return Component.literal(ColdCaseCustomConfig.clueTool.get().replace("{tool}", tool));
+    private MutableComponent getItemComponent() {
+        if (random.nextDouble() < getRevealChance(ColdCaseCustomConfig.itemRevealChance.get())) {
+            String unknown = ColdCaseCustomConfig.clueUnknown.get();
+            return formatComponent(ColdCaseCustomConfig.clueItem.get(), "{item}", Component.literal(unknown));
         }
-        return Component.empty();
+        return formatComponent(ColdCaseCustomConfig.clueItem.get(), "{item}", getMaterialComponent());
     }
 
     @Override

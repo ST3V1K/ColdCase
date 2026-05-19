@@ -3,6 +3,7 @@ package com.daqem.coldcase.event.block;
 import com.daqem.coldcase.block.BlockHandler;
 import com.daqem.coldcase.block.container.ContainerHandler;
 import com.daqem.coldcase.event.AbstractEvent;
+import com.daqem.coldcase.item.ColdCaseItems;
 import com.daqem.coldcase.model.action.BlockAction;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
 import dev.architectury.event.EventResult;
@@ -26,6 +27,10 @@ public class RightClickBlockEvent extends AbstractEvent {
     public static EventResult rightClickBlock(Player player, InteractionHand hand, BlockPos pos, Direction direction) {
         if (player instanceof ColdCaseServerPlayer serverPlayer) {
             if (hand == InteractionHand.MAIN_HAND) {
+
+                if (player.getMainHandItem().is(ColdCaseItems.MAGNIFYING_GLASS.get())) {
+                    return pass();
+                }
 
                 Level level = player.level();
                 BlockState state = level.getBlockState(pos);

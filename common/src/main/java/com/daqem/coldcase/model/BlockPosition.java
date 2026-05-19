@@ -1,6 +1,7 @@
 package com.daqem.coldcase.model;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -13,5 +14,9 @@ public record BlockPosition(int x, int y, int z) {
                 .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, com.daqem.coldcase.ColdCase.literal("Click to teleport to this position.")))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp " + x + " " + y + " " + z)));
+    }
+
+    public BlockPos toBlockPos() {
+        return new BlockPos(x, y, z);
     }
 }

@@ -31,15 +31,17 @@ public class ContainerTransactionManager implements IContainerTransactionManager
         List<SimpleItemStack> removedItems = getRemovedItems();
         List<SimpleItemStack> addedItems = getAddedItems();
 
-        Services.CONTAINER.insertMap(
-                serverPlayer.getUUID(),
-                blockEntity.getLevel() != null ? blockEntity.getLevel() : serverPlayer.level(),
-                blockEntity.getBlockPos(),
-                Map.of(
-                        ItemAction.REMOVE_ITEM, removedItems,
-                        ItemAction.ADD_ITEM, addedItems
-                )
-        );
+        if (!removedItems.isEmpty() || !addedItems.isEmpty()) {
+            Services.CONTAINER.insertMap(
+                    serverPlayer.getUUID(),
+                    blockEntity.getLevel() != null ? blockEntity.getLevel() : serverPlayer.level(),
+                    blockEntity.getBlockPos(),
+                    Map.of(
+                            ItemAction.REMOVE_ITEM, removedItems,
+                            ItemAction.ADD_ITEM, addedItems
+                    )
+            );
+        }
     }
 
     private void constructFinalItems() {

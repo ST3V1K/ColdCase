@@ -30,16 +30,6 @@ public class ColdCaseBlockService {
         ThreadManager.submit(() -> getBlockHistory(level, pos), onComplete);
     }
 
-    public List<IHistory> getBlockHistory(Level level, List<BlockPos> pos) {
-        return blockService.getBlockHistory(level, pos).stream()
-                .map(this::createUnreliableHistory)
-                .collect(Collectors.toList());
-    }
-
-    public void getBlockHistoryAsync(Level level, List<BlockPos> pos, OnComplete<List<IHistory>> onComplete) {
-        ThreadManager.submit(() -> getBlockHistory(level, pos), onComplete);
-    }
-
     public List<IHistory> getInteractionHistory(Level level, BlockPos pos) {
         return blockService.getInteractionHistory(level, pos).stream()
                 .map(this::createUnreliableHistory)

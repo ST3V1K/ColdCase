@@ -40,4 +40,9 @@ public abstract class History implements IHistory {
     public Component getComponentWithPos() {
         return getComponent().copy().append(" ").append(getPosition().getComponent());
     }
+
+    @Override
+    public long getOriginalTime() {
+        return time.time();
+    }
 }

@@ -21,4 +21,18 @@ public interface IHistory {
     Component getMaterialComponent();
 
     Component getComponentWithPos();
+
+    default double getChance() {
+        return 100;
+    }
+
+    default boolean shouldReveal(double currentRevealChance) {
+        return true;
+    }
+
+    default Component getClueComponent() {
+        return getComponent();
+    }
+
+    long getOriginalTime();
 }

@@ -43,6 +43,7 @@ public class ContainerRepository extends Repository {
                 	data blob DEFAULT NULL,
                 	amount integer NOT NULL,
                 	action integer NOT NULL,
+                	cleanwork_armor tinyint DEFAULT 0,
                 	FOREIGN KEY(user) REFERENCES users(id),
                 	FOREIGN KEY(level) REFERENCES levels(id),
                 	FOREIGN KEY(type) REFERENCES materials(id)
@@ -61,6 +62,7 @@ public class ContainerRepository extends Repository {
                     	data blob DEFAULT NULL,
                     	amount int NOT NULL,
                     	action int NOT NULL,
+                    	cleanwork_armor tinyint DEFAULT 0,
                     	FOREIGN KEY(user) REFERENCES users(id),
                     	FOREIGN KEY(level) REFERENCES levels(id),
                     	FOREIGN KEY(type) REFERENCES materials(id)
@@ -259,7 +261,7 @@ public class ContainerRepository extends Repository {
     public List<IHistory> getHistory(Level level, int x, int y, int z) {
         List<IHistory> containerHistory = new ArrayList<>();
         String query = """
-                SELECT containers.time, users.name, users.uuid, containers.x, containers.y, containers.z, materials.name, containers.data, containers.amount, containers.action
+                SELECT containers.time, users.name, users.uuid, containers.x, containers.y, containers.z, materials.name, containers.data, containers.amount, containers.action, containers.cleanwork_armor
                 FROM containers
                 INNER JOIN users ON containers.user = users.id
                 INNER JOIN levels ON containers.level = (
@@ -304,7 +306,7 @@ public class ContainerRepository extends Repository {
     public List<IHistory> getHistory(Level level, int x, int y, int z, int x2, int y2, int z2) {
         List<IHistory> containerHistory = new ArrayList<>();
         String query = """
-                SELECT containers.time, users.name, users.uuid, containers.x, containers.y, containers.z, materials.name, containers.data, containers.amount, containers.action
+                SELECT containers.time, users.name, users.uuid, containers.x, containers.y, containers.z, materials.name, containers.data, containers.amount, containers.action, containers.cleanwork_armor
                 FROM containers
                 INNER JOIN users ON containers.user = users.id
                 INNER JOIN levels ON containers.level = (
@@ -356,7 +358,7 @@ public class ContainerRepository extends Repository {
         @Nullable String excludeMaterials = filterList.getExcludeMaterialsString();
 
         String query = """
-                SELECT containers.time, users.name, users.uuid, containers.x, containers.y, containers.z, materials.name, containers.data, containers.amount, containers.action
+                SELECT containers.time, users.name, users.uuid, containers.x, containers.y, containers.z, materials.name, containers.data, containers.amount, containers.action, containers.cleanwork_armor
                 FROM containers
                 INNER JOIN users ON containers.user = users.id
                 INNER JOIN levels ON containers.level = levels.id
