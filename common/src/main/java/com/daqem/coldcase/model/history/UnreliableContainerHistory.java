@@ -7,8 +7,6 @@ import com.daqem.coldcase.model.Time;
 import com.daqem.coldcase.model.User;
 import com.daqem.coldcase.util.ClueComponentUtils;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
@@ -27,39 +25,14 @@ public class UnreliableContainerHistory extends ContainerHistory {
         this.random = this.getRandom();
     }
 
-    public UnreliableContainerHistory(long time, String user, String uuid, int x, int y, int z, String material, DataComponentPatch data, int amount, int action, byte cleanworkArmor) {
-        super(time, user, uuid, x, y, z, material, data, amount, action, cleanworkArmor);
-        this.random = this.getRandom();
-    }
-
-    @Override
-    public double getChance() {
-        double chance = 50;
-        chance += getItemStack().getCount() * 0.5;
-        return Math.min(100, chance);
-    }
-
-    @Override
-    public String toString() {
-        return "UnreliableContainerHistory{" +
-                "time=" + getTime() +
-                ", user=" + getUser() +
-                ", position=" + getPosition() +
-                ", material=" + getItemStack().getItem().arch$registryName() +
-                ", data=" + getItemStack().getTag() +
-                ", amount=" + getItemStack().getCount() +
-                ", action=" + getAction() +
-                ", chance=" + getChance() +
-                '}';
-    }
-
     public boolean shouldReveal(double currentRevealChance) {
         return random.nextDouble() < currentRevealChance;
     }
 
     public Component getClueComponent() {
         User user = getUser();
-        boolean isPartialUser = user.getName().endsWith("...");
+
+        boolean isPartialUser = random.nextFloat() > ColdCaseCustomConfig.userNameLetterRevealChance.get();
 
         MutableComponent timeStr = getTimeComponent();
         MutableComponent userStr = getUserComponent(user, isPartialUser);
@@ -196,9 +169,9 @@ public class UnreliableContainerHistory extends ContainerHistory {
 
         String name = user.getName();
         if (isPartialUser) {
-            String partialName = String.valueOf(name.charAt(0));
-            return Component.literal(ColdCaseCustomConfig.clueUserStartWith.get()
-                    .replace("{user}", partialName));
+            String letter = String.valueOf(name.charAt(random.nextInt(name.length())));
+            return Component.literal(ColdCaseCustomConfig.clueUsernameContainsLetter.get()
+                    .replace("{letter}", letter));
         } else {
             return Component.literal(ColdCaseCustomConfig.clueUser.get().replace("{user}", name));
         }
@@ -239,16 +212,6 @@ public class UnreliableContainerHistory extends ContainerHistory {
         double driftFactor = 1 + random.nextDouble(-ColdCaseCustomConfig.timeInaccuracy.get(), ColdCaseCustomConfig.timeInaccuracy.get());
         long skewedElapsed = Math.round(realElapsed * driftFactor);
         return new Time(now - skewedElapsed);
-    }
-
-    @Override
-    public User getUser() {
-        User user = super.getUser();
-        if (random.nextDouble() < ColdCaseCustomConfig.partialUserRevealChance.get()) {
-            String name = "%c...".formatted(user.getName().charAt(0));
-            return new User(name, null);
-        }
-        return user;
     }
 
     private Random getRandom() {

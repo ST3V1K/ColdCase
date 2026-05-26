@@ -22,18 +22,9 @@ public class UnreliableBlockHistory extends BlockHistory {
 
     private final Random random;
 
-    public UnreliableBlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleanworkArmor) {
-        super(time, user, position, material, action, tool, skinColor, cleanworkArmor);
+    public UnreliableBlockHistory(BlockHistory history) {
+        super(history.getTime(), history.getUser(), history.getPosition(), history.getMaterial(), (BlockAction) history.getAction(), history.getTool(), history.getSkinColor(), history.getCleanworkArmor());
         this.random = this.getRandom();
-    }
-
-    @Override
-    public Component getComponent() {
-        return getTime().getFormattedTimeAgo().append(" ")
-                .append(getAction().getPrefix()).append(" ")
-                .append(getUser().getNameComponent()).append(" ")
-                .append(getAction().getPastTense()).append(" ")
-                .append(getMaterialComponent());
     }
 
     public boolean shouldReveal(double currentRevealChance) {
@@ -42,7 +33,8 @@ public class UnreliableBlockHistory extends BlockHistory {
 
     public Component getClueComponent() {
         User user = getUser();
-        boolean isPartialUser = user.getName().endsWith("...");
+
+        boolean isPartialUser = random.nextFloat() > ColdCaseCustomConfig.userNameLetterRevealChance.get();
 
         MutableComponent timeStr = getTimeComponent();
         MutableComponent userStr = getUserComponent(user, isPartialUser);
@@ -155,9 +147,9 @@ public class UnreliableBlockHistory extends BlockHistory {
 
         String name = user.getName();
         if (isPartialUser) {
-            String partialName = String.valueOf(name.charAt(0));
-            return Component.literal(ColdCaseCustomConfig.clueUserStartWith.get()
-                    .replace("{user}", partialName));
+            String letter = String.valueOf(name.charAt(random.nextInt(name.length())));
+            return Component.literal(ColdCaseCustomConfig.clueUsernameContainsLetter.get()
+                    .replace("{letter}", letter));
         } else {
             return Component.literal(ColdCaseCustomConfig.clueUser.get().replace("{user}", name));
         }
@@ -208,16 +200,6 @@ public class UnreliableBlockHistory extends BlockHistory {
         double driftFactor = 1 + random.nextDouble(-ColdCaseCustomConfig.timeInaccuracy.get(), ColdCaseCustomConfig.timeInaccuracy.get());
         long skewedElapsed = Math.round(realElapsed * driftFactor);
         return new Time(now - skewedElapsed);
-    }
-
-    @Override
-    public User getUser() {
-        User user = super.getUser();
-        if (random.nextDouble() < ColdCaseCustomConfig.partialUserRevealChance.get()) {
-            String name = "%c...".formatted(user.getName().charAt(0));
-            return new User(name, null);
-        }
-        return user;
     }
 
     private Random getRandom() {

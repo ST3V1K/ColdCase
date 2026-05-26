@@ -57,7 +57,7 @@ public class InvestigationUtils {
             return "Suspect identified as " + attackerName + ".";
         }
 
-        double partialNameChance = ColdCaseCustomConfig.partialUserRevealChance.get() * decayFactor;
+        double partialNameChance = ColdCaseCustomConfig.userNameLetterRevealChance.get() * decayFactor;
         if (RANDOM.nextDouble() < partialNameChance) {
             char randomChar = attackerName.charAt(RANDOM.nextInt(attackerName.length()));
             return "Name may contain the letter '" + randomChar + "'.";

@@ -1,6 +1,6 @@
 package com.daqem.coldcase.database.service;
 
-import com.daqem.coldcase.model.action.BlockAction;
+import com.daqem.coldcase.model.Operation;
 import com.daqem.coldcase.model.history.BlockHistory;
 import com.daqem.coldcase.model.history.IHistory;
 import com.daqem.coldcase.model.history.UnreliableBlockHistory;
@@ -32,6 +32,7 @@ public class ColdCaseBlockService {
 
     public List<IHistory> getInteractionHistory(Level level, BlockPos pos) {
         return blockService.getInteractionHistory(level, pos).stream()
+                .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
                 .map(this::createUnreliableHistory)
                 .collect(Collectors.toList());
     }
@@ -42,6 +43,7 @@ public class ColdCaseBlockService {
 
     public List<IHistory> getInteractionHistory(Level level, List<BlockPos> pos) {
         return blockService.getInteractionHistory(level, pos).stream()
+                .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
                 .map(this::createUnreliableHistory)
                 .collect(Collectors.toList());
     }
@@ -52,16 +54,7 @@ public class ColdCaseBlockService {
 
     private IHistory createUnreliableHistory(IHistory history) {
         if (history instanceof BlockHistory blockHistory) {
-            return new UnreliableBlockHistory(
-                    blockHistory.getTime(),
-                    blockHistory.getUser(),
-                    blockHistory.getPosition(),
-                    blockHistory.getMaterial(),
-                    (BlockAction) blockHistory.getAction(),
-                    blockHistory.getTool(),
-                    blockHistory.getSkinColor(),
-                    blockHistory.getCleanworkArmor()
-            );
+            return new UnreliableBlockHistory(blockHistory);
         }
         return history;
     }

@@ -1,5 +1,6 @@
 package com.daqem.coldcase.database.service;
 
+import com.daqem.coldcase.model.Operation;
 import com.daqem.coldcase.model.history.ContainerHistory;
 import com.daqem.coldcase.model.history.IHistory;
 import com.daqem.coldcase.model.history.UnreliableContainerHistory;
@@ -21,11 +22,13 @@ public class ColdCaseContainerService {
 
     public List<IHistory> getContainerHistory(Level level, List<BlockPos> pos) {
         if (pos.size() > 1) {
-            return containerService.getHistory(level, pos.get(0), pos.get(pos.size() - 1)).stream()
+            return containerService.getHistory(level, pos.getFirst(), pos.getLast()).stream()
+                    .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
                     .map(this::createUnreliableHistory)
                     .collect(Collectors.toList());
         } else {
-            return containerService.getHistory(level, pos.get(0)).stream()
+            return containerService.getHistory(level, pos.getFirst()).stream()
+                    .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
                     .map(this::createUnreliableHistory)
                     .collect(Collectors.toList());
         }

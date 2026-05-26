@@ -1,5 +1,6 @@
 package com.daqem.coldcase.mixin;
 
+import com.daqem.coldcase.ColdCase;
 import com.daqem.coldcase.block.container.ContainerHandler;
 import com.daqem.coldcase.block.container.ContainerTransactionManager;
 import com.daqem.coldcase.block.container.ContainersTransactionManager;
@@ -12,15 +13,15 @@ import com.daqem.coldcase.event.item.DropItemEvent;
 import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.model.action.ItemAction;
 import com.daqem.coldcase.model.history.IHistory;
-import com.daqem.coldcase.model.history.UnreliableBlockHistory;
+import com.daqem.coldcase.network.ColdCaseNetwork;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
 import com.mojang.authlib.GameProfile;
 import dev.architectury.utils.EnvExecutor;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +29,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -42,13 +42,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Mixin(ServerPlayer.class)
 public abstract class MixinServerPlayer extends Player implements ColdCaseServerPlayer {
 
-    @Shadow
-    public ServerGamePacketListenerImpl connection;
     @Unique
     private boolean coldcase$inspecting = false;
     @Unique
@@ -76,11 +73,11 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
     public void coldcase$sendInspectMessage(List<IHistory> historyList) {
         if (historyList.isEmpty()) {
             if (((Player) this) instanceof ServerPlayer serverPlayer)
-                serverPlayer.sendSystemMessage(com.daqem.coldcase.ColdCase.translate("lookup.no_history", com.daqem.coldcase.ColdCase.getName()));
+                serverPlayer.sendSystemMessage(ColdCase.translate("lookup.no_history", ColdCase.getName()));
         } else {
             List<Page> pages = Page.convertToPages(historyList, true);
             coldcase$setPages(pages);
-            Page pageToDisplay = pages.get(0);
+            Page pageToDisplay = pages.getFirst();
             pageToDisplay.sendToPlayer(coldcase$asServerPlayer());
         }
     }
@@ -90,7 +87,7 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
         ServerPlayer serverPlayer = coldcase$asServerPlayer();
         if (!historyList.isEmpty()) {
             List<IHistory> revealedHistories = new ArrayList<>();
-            double currentRevealChance = ColdCaseCustomConfig.itemRevealBaseChance.get() / 100.0;
+            double currentRevealChance = ColdCaseCustomConfig.clueBaseRevealChance.get() / 100.0;
 
             for (IHistory history : historyList) {
                 if (history.shouldReveal(currentRevealChance)) {
@@ -102,7 +99,7 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
             }
 
             if (!revealedHistories.isEmpty()) {
-                BlockPos locationPos = revealedHistories.get(0).getPosition().toBlockPos();
+                BlockPos locationPos = revealedHistories.getFirst().getPosition().toBlockPos();
 
                 // Store the revealed list so the navigation command can look up clues by index.
                 ClueNavigationCommand.storePlayerHistoryList(serverPlayer.getUUID(), locationPos, revealedHistories);
@@ -118,12 +115,12 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
 
                 // Build the initial clue component (index 0) with the navigation footer,
                 // then send it via the custom packet so the client can later replace it.
-                IHistory firstClue = revealedHistories.get(0);
-                net.minecraft.network.chat.MutableComponent clueComponent = firstClue.getClueComponent().copy();
+                IHistory firstClue = revealedHistories.getFirst();
+                MutableComponent clueComponent = firstClue.getClueComponent().copy();
                 clueComponent.append(com.daqem.coldcase.util.ClueComponentUtils.createNavigationFooter(
                         0, revealedHistories.size(), firstClue.getPosition()));
 
-                com.daqem.coldcase.network.ColdCaseNetwork.sendClueUpdate(serverPlayer, clueMessageId, clueComponent);
+                ColdCaseNetwork.sendClueUpdate(serverPlayer, clueMessageId, clueComponent);
                 return;
             }
         }

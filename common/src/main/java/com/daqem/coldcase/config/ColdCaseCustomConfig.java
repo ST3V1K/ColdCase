@@ -21,11 +21,11 @@ public class ColdCaseCustomConfig {
 
     public static final Supplier<Double> timeRevealChance;
     public static final Supplier<Double> userRevealChance;
-    public static final Supplier<Double> partialUserRevealChance;
+    public static final Supplier<Double> userNameLetterRevealChance;
     public static final Supplier<Double> skinColorRevealChance;
     public static final Supplier<Double> toolRevealChance;
     public static final Supplier<Double> itemRevealChance;
-    public static final Supplier<Double> itemRevealBaseChance;
+    public static final Supplier<Double> clueBaseRevealChance;
     public static final Supplier<Double> itemRevealFalloff;
     public static final Supplier<Integer> itemRevealFullChanceTime; // New config option
     public static final Supplier<Integer> itemRevealZeroChanceTime; // New config option
@@ -49,7 +49,7 @@ public class ColdCaseCustomConfig {
     public static final Supplier<String> clueTime;
     public static final Supplier<String> clueTimeUnknown;
     public static final Supplier<String> clueUser;
-    public static final Supplier<String> clueUserStartWith;
+    public static final Supplier<String> clueUsernameContainsLetter;
     public static final Supplier<String> clueUserUnknown;
     public static final Supplier<String> clueSkinColor;
     public static final Supplier<String> clueTool;
@@ -92,7 +92,7 @@ public class ColdCaseCustomConfig {
         userRevealChance = config.comment("The chance to reveal the user who performed an action.")
                 .onlyOnServer()
                 .define("userRevealChance", 0.8, 0.0, 1.0);
-        partialUserRevealChance = config.comment("The chance to reveal a partial username (e.g. the first letter).")
+        userNameLetterRevealChance = config.comment("The chance to reveal a letter from username.")
                 .onlyOnServer()
                 .define("partialUserRevealChance", 0.8, 0.0, 1.0);
         skinColorRevealChance = config.comment("The chance to reveal the skin color of the user.")
@@ -104,7 +104,7 @@ public class ColdCaseCustomConfig {
         itemRevealChance = config.comment("The base chance to reveal the item that was taken/placed (before time decay).")
                 .onlyOnServer()
                 .define("itemRevealChance", 0.8, 0.0, 1.0);
-        itemRevealBaseChance = config.comment("The base chance (in percent) to reveal the first item interaction in a container.")
+        clueBaseRevealChance = config.comment("The base chance (in percent) to reveal the first clue.")
                 .onlyOnServer()
                 .define("itemRevealBaseChance", 100.0, 0.0, 100.0);
         itemRevealFalloff = config.comment("The multiplier (0.0-1.0) by which the reveal chance decreases for each subsequent item interaction.")
@@ -174,9 +174,9 @@ public class ColdCaseCustomConfig {
         clueUser = config.comment("Message for the user of the clue. Placeholder: {user}")
                 .onlyOnServer()
                 .define("clueUser", "§aThe culprit was {user}.", 1, 100);
-        clueUserStartWith = config.comment("Message for when the user of the clue is partially revealed. Placeholder: {user}")
+        clueUsernameContainsLetter = config.comment("Message for when a letter from the user of the clue is revealed. Placeholder: {letter}")
                 .onlyOnServer()
-                .define("clueUserStartWith", "§aThe culprit's name starts with '{user}'.", 1, 100);
+                .define("clueUserStartWith", "§aThe culprit's name contains the letter '{letter}'.", 1, 100);
         clueUserUnknown = config.comment("Message for when the user of the clue is unknown.")
                 .onlyOnServer()
                 .define("clueUserUnknown", "§aThe culprit is unknown.", 1, 100);
