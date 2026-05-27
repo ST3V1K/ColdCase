@@ -26,9 +26,4 @@ public class SessionHistory extends History {
                 .append(getUser().getNameComponent()).append(" ")
                 .append(getAction().getPastTense());
     }
-
-    @Override
-    public Component getMaterialComponent() {
-        return null;
-    }
 }

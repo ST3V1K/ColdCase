@@ -27,10 +27,6 @@ public class UnreliableBlockHistory extends BlockHistory {
         this.random = this.getRandom();
     }
 
-    public boolean shouldReveal(double currentRevealChance) {
-        return random.nextDouble() < currentRevealChance;
-    }
-
     public Component getClueComponent() {
         User user = getUser();
 
@@ -44,6 +40,7 @@ public class UnreliableBlockHistory extends BlockHistory {
 
         MutableComponent colorStr = getSkinColorComponent(isPartialUser, isUnknownUser);
         MutableComponent toolStr = getToolComponent();
+        MutableComponent blockActionStr = getBlockActionComponent();
 
         MutableComponent result = Component.empty();
 
@@ -58,6 +55,9 @@ public class UnreliableBlockHistory extends BlockHistory {
         }
         if (!toolStr.getString().isBlank()) {
             result.append(Component.literal("\n")).append(toolStr);
+        }
+        if (!blockActionStr.getString().isBlank()) {
+            result.append(Component.literal("\n")).append(blockActionStr);
         }
 
         return result;
@@ -172,6 +172,31 @@ public class UnreliableBlockHistory extends BlockHistory {
                     .replace("{skin_color}", skinColor));
         }
         return Component.empty();
+    }
+
+    private MutableComponent getBlockActionComponent() {
+        String actionString;
+        if (getAction() == BlockAction.BREAK_BLOCK) {
+            actionString = "Destroyed";
+        } else if (getAction() == BlockAction.PLACE_BLOCK) {
+            actionString = "Placed";
+        } else {
+            return Component.empty();
+        }
+
+        if (random.nextDouble() < getRevealChance(ColdCaseCustomConfig.clueBaseRevealChance.get())) {
+            String unknown = ColdCaseCustomConfig.clueUnknown.get();
+            return Component.literal(ColdCaseCustomConfig.clueBlockAction.get()
+                    .replace("{action}", actionString)
+                    .replace("{block}", unknown));
+        }
+
+        String blockName = Component.translatable(BuiltInRegistries.BLOCK.get(
+                ResourceLocation.parse(getMaterial())).getDescriptionId()).getString();
+
+        return Component.literal(ColdCaseCustomConfig.clueBlockAction.get()
+                .replace("{action}", actionString)
+                .replace("{block}", blockName));
     }
 
     private MutableComponent getToolComponent() {

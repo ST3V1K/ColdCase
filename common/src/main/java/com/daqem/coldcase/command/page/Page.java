@@ -51,7 +51,9 @@ public class Page {
     private Component getHeader() {
         MutableComponent header = ColdCase.translate("lookup.history_header", ColdCase.themedTranslate("lookup.history_title"));
         if (singleLocation && !history.isEmpty()) {
-            header.append(" ").append(history.get(0).getPosition().getComponent());
+            if (history.get(0).getPosition() != null) {
+                header.append(" ").append(history.get(0).getPosition().getComponent());
+            }
         }
         return header;
     }

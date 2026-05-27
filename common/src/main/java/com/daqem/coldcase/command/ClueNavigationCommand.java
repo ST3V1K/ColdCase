@@ -2,6 +2,8 @@ package com.daqem.coldcase.command;
 
 import com.daqem.coldcase.model.BlockPosition;
 import com.daqem.coldcase.model.history.IHistory;
+import com.daqem.coldcase.model.history.UnreliableBlockHistory;
+import com.daqem.coldcase.model.history.UnreliableTransactionHistory;
 import com.daqem.coldcase.network.ColdCaseNetwork;
 import com.daqem.coldcase.util.ClueComponentUtils;
 import com.mojang.brigadier.CommandDispatcher;
@@ -91,7 +93,15 @@ public class ClueNavigationCommand {
                 });
 
         IHistory history = histories.get(index);
-        MutableComponent message = history.getClueComponent().copy();
+        MutableComponent message;
+        if (history instanceof UnreliableTransactionHistory transactionHistory) {
+            message = transactionHistory.getClueComponent().copy();
+        } else if (history instanceof UnreliableBlockHistory blockHistory) {
+            message = blockHistory.getClueComponent().copy();
+        } else {
+            return 1;
+        }
+
         message.append(ClueComponentUtils.createNavigationFooter(
                 index,
                 histories.size(),

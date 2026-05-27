@@ -22,6 +22,10 @@ public class SimpleItemStack {
         this(itemStack.getItem(), itemStack.getCount(), itemStack.getComponentsPatch());
     }
 
+    public SimpleItemStack(String itemLocation, int count, DataComponentPatch tag) {
+        this(ResourceLocation.parse(itemLocation), count, tag);
+    }
+
     public SimpleItemStack(ResourceLocation itemLocation, int count, DataComponentPatch tag) {
         this.item = BuiltInRegistries.ITEM.get(itemLocation);
         this.count = count;

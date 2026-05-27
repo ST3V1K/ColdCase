@@ -12,23 +12,29 @@ public interface IHistory {
 
     User getUser();
 
-    BlockPosition getPosition();
+    long getOriginalTime();
 
-    IAction getAction();
+    default BlockPosition getPosition() {
+        return null;
+    }
 
-    Component getComponent();
+    default IAction getAction() {
+        return null;
+    }
 
-    Component getMaterialComponent();
+    default Component getComponent() {
+        return Component.empty();
+    }
 
-    Component getComponentWithPos();
+    default Component getMaterialComponent() {
+        return Component.empty();
+    }
 
-    default boolean shouldReveal(double currentRevealChance) {
-        return true;
+    default Component getComponentWithPos() {
+        return Component.empty();
     }
 
     default Component getClueComponent() {
         return getComponent();
     }
-
-    long getOriginalTime();
 }

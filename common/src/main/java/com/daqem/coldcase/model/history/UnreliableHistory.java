@@ -3,26 +3,25 @@ package com.daqem.coldcase.model.history;
 import com.daqem.coldcase.model.BlockPosition;
 import com.daqem.coldcase.model.Time;
 import com.daqem.coldcase.model.User;
-import com.daqem.coldcase.model.action.IAction;
 
-public abstract class History implements IHistory {
+public abstract class UnreliableHistory implements IHistory {
 
     private final Time time;
     private final User user;
     private final BlockPosition position;
-    private final IAction action;
 
-    public History(Time time, User user, BlockPosition position, IAction action) {
+    public UnreliableHistory(Time time, User user, BlockPosition position) {
         this.time = time;
         this.user = user;
         this.position = position;
-        this.action = action;
     }
 
+    @Override
     public Time getTime() {
         return time;
     }
 
+    @Override
     public User getUser() {
         return user;
     }
@@ -30,11 +29,6 @@ public abstract class History implements IHistory {
     @Override
     public BlockPosition getPosition() {
         return position;
-    }
-
-    @Override
-    public IAction getAction() {
-        return action;
     }
 
     @Override

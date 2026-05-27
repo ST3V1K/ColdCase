@@ -15,6 +15,8 @@ import java.util.UUID;
 
 public class BlockHistory extends History {
 
+    private final BlockPosition position;
+    private final BlockAction action;
     private final String material;
     private final String tool;
     private final String skinColor;
@@ -34,19 +36,20 @@ public class BlockHistory extends History {
 
     public BlockHistory(Time time, User user, BlockPosition position, String material, BlockAction action, String tool, String skinColor, byte cleanworkArmor) {
         super(time, user, position, action);
+        this.position = position;
+        this.action = action;
         this.material = material;
         this.tool = tool;
         this.skinColor = skinColor;
         this.cleanworkArmor = cleanworkArmor;
     }
 
-    @Override
-    public Component getComponent() {
-        return getTime().getFormattedTimeAgo().append(" ")
-                .append(getAction().getPrefix()).append(" ")
-                .append(getUser().getNameComponent()).append(" ")
-                .append(getAction().getPastTense()).append(" ")
-                .append(getMaterialComponent());
+    public BlockPosition getPosition() {
+        return position;
+    }
+
+    public BlockAction getAction() {
+        return action;
     }
 
     public Component getMaterialComponent() {

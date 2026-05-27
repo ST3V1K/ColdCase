@@ -16,6 +16,8 @@ import java.util.UUID;
 
 public class ItemHistory extends History {
 
+    private final BlockPosition position;
+    private final IAction action;
     protected final SimpleItemStack itemStack;
     private final byte cleanworkArmor;
 
@@ -29,25 +31,24 @@ public class ItemHistory extends History {
 
     public ItemHistory(Time time, User user, BlockPosition position, SimpleItemStack itemStack, IAction action, byte cleanworkArmor) {
         super(time, user, position, action);
+        this.position = position;
+        this.action = action;
         this.itemStack = itemStack;
         this.cleanworkArmor = cleanworkArmor;
+    }
+
+    public BlockPosition getPosition() {
+        return position;
+    }
+
+    public IAction getAction() {
+        return action;
     }
 
     public SimpleItemStack getItemStack() {
         return itemStack;
     }
 
-    @Override
-    public Component getComponent() {
-        return getTime().getFormattedTimeAgo().append(" ")
-                .append(getAction().getPrefix()).append(" ")
-                .append(getUser().getNameComponent()).append(" ")
-                .append(getAction().getPastTense()).append(" ")
-                .append(Component.literal(String.valueOf(getItemStack().getCount()))).append(" ")
-                .append(getMaterialComponent());
-    }
-
-    @Override
     public Component getMaterialComponent() {
         int cappedCount = Math.min(itemStack.getCount(), 64); // It appears that the HoverEven.ItemStackInfo does not display the count at all either way.
         var cappedItemStack = itemStack.toItemStack().copyWithCount(cappedCount);

@@ -24,12 +24,16 @@ public class ColdCaseCustomConfig {
     public static final Supplier<Double> userNameLetterRevealChance;
     public static final Supplier<Double> skinColorRevealChance;
     public static final Supplier<Double> toolRevealChance;
-    public static final Supplier<Double> itemRevealChance;
     public static final Supplier<Double> clueBaseRevealChance;
     public static final Supplier<Double> itemRevealFalloff;
-    public static final Supplier<Integer> itemRevealFullChanceTime; // New config option
-    public static final Supplier<Integer> itemRevealZeroChanceTime; // New config option
+    public static final Supplier<Integer> itemRevealFullChanceTime;
+    public static final Supplier<Integer> itemRevealZeroChanceTime;
     public static final Supplier<Double> timeInaccuracy;
+
+    public static final Supplier<Double> minItemTransactionFactor;
+    public static final Supplier<Double> maxItemTransactionFactor;
+    public static final Supplier<Integer> minItemsForFactor;
+    public static final Supplier<Integer> maxItemsForFactor;
 
     public static final Supplier<Double> cleanworkHelmetHideChance;
     public static final Supplier<Double> cleanworkChestplateHideChance;
@@ -53,7 +57,10 @@ public class ColdCaseCustomConfig {
     public static final Supplier<String> clueUserUnknown;
     public static final Supplier<String> clueSkinColor;
     public static final Supplier<String> clueTool;
+    public static final Supplier<String> clueBlockAction;
     public static final Supplier<String> clueItem;
+    public static final Supplier<String> clueItemTook;
+    public static final Supplier<String> clueItemPut;
     public static final Supplier<String> clueUnknown;
     public static final Supplier<String> clueHardToTell;
 
@@ -101,9 +108,6 @@ public class ColdCaseCustomConfig {
         toolRevealChance = config.comment("The chance to reveal the tool used to perform an action.")
                 .onlyOnServer()
                 .define("toolRevealChance", 0.8, 0.0, 1.0);
-        itemRevealChance = config.comment("The base chance to reveal the item that was taken/placed (before time decay).")
-                .onlyOnServer()
-                .define("itemRevealChance", 0.8, 0.0, 1.0);
         clueBaseRevealChance = config.comment("The base chance (in percent) to reveal the first clue.")
                 .onlyOnServer()
                 .define("itemRevealBaseChance", 100.0, 0.0, 100.0);
@@ -119,6 +123,19 @@ public class ColdCaseCustomConfig {
         timeInaccuracy = config.comment("The maximum inaccuracy of the time of an action (e.g. 0.1 for 10% inaccuracy).")
                 .onlyOnServer()
                 .define("timeInaccuracy", 0.01, 0.0, 1.0);
+
+        minItemTransactionFactor = config.comment("The minimum multiplier (e.g., 0.15 for 15%) for the reveal chance of a container transaction.")
+                .onlyOnServer()
+                .define("minItemTransactionFactor", 0.15, 0.0, 1.0);
+        maxItemTransactionFactor = config.comment("The maximum multiplier (e.g., 0.8 for 80%) for the reveal chance of a container transaction.")
+                .onlyOnServer()
+                .define("maxItemTransactionFactor", 0.8, 0.0, 1.0);
+        minItemsForFactor = config.comment("The number of items moved to trigger the minimum reveal chance multiplier.")
+                .onlyOnServer()
+                .define("minItemsForFactor", 1, 1, Integer.MAX_VALUE);
+        maxItemsForFactor = config.comment("The number of items moved to trigger the maximum reveal chance multiplier.")
+                .onlyOnServer()
+                .define("maxItemsForFactor", 64, 1, Integer.MAX_VALUE);
         config.pop();
 
         config.push("cleanwork");
@@ -186,9 +203,18 @@ public class ColdCaseCustomConfig {
         clueTool = config.comment("Message for the tool used. Placeholder: {tool}")
                 .onlyOnServer()
                 .define("clueTool", "§aThe tool used was {tool}.", 1, 100);
+        clueBlockAction = config.comment("Message for the block action. Placeholders: {action}, {block}")
+                .onlyOnServer()
+                .define("clueBlockAction", "§a{action} {block}.", 1, 100);
         clueItem = config.comment("Message for the item that was taken/placed. Placeholder: {item}")
                 .onlyOnServer()
                 .define("clueItem", "§aThe item was {item}.", 1, 100);
+        clueItemTook = config.comment("Message for when an item was taken. Placeholder: {item}")
+                .onlyOnServer()
+                .define("clueItemTook", "§aTook {item}.", 1, 100);
+        clueItemPut = config.comment("Message for when an item was put. Placeholder: {item}")
+                .onlyOnServer()
+                .define("clueItemPut", "§aPut {item}.", 1, 100);
         clueUnknown = config.comment("Message for when a clue is unknown.")
                 .onlyOnServer()
                 .define("clueUnknown", "unknown", 1, 100);

@@ -32,7 +32,7 @@ public class ColdCaseBlockService {
 
     public List<IHistory> getInteractionHistory(Level level, BlockPos pos) {
         return blockService.getInteractionHistory(level, pos).stream()
-                .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
+                .filter(hist -> hist.getAction() != null && hist.getAction().getOperation() != Operation.NEUTRAL)
                 .map(this::createUnreliableHistory)
                 .collect(Collectors.toList());
     }
@@ -43,7 +43,7 @@ public class ColdCaseBlockService {
 
     public List<IHistory> getInteractionHistory(Level level, List<BlockPos> pos) {
         return blockService.getInteractionHistory(level, pos).stream()
-                .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
+                .filter(hist -> hist.getAction() != null && hist.getAction().getOperation() != Operation.NEUTRAL)
                 .map(this::createUnreliableHistory)
                 .collect(Collectors.toList());
     }

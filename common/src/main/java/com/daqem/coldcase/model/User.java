@@ -24,6 +24,10 @@ public class User {
         return Optional.ofNullable(uuid);
     }
 
+    public UUID getUUID() {
+        return uuid;
+    }
+
     public Component getNameComponent() {
         return com.daqem.coldcase.ColdCase.themedLiteral(name);
     }

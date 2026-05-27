@@ -9,6 +9,7 @@ import com.daqem.coldcase.thread.ThreadManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,17 +22,14 @@ public class ColdCaseContainerService {
     }
 
     public List<IHistory> getContainerHistory(Level level, List<BlockPos> pos) {
-        if (pos.size() > 1) {
-            return containerService.getHistory(level, pos.getFirst(), pos.getLast()).stream()
-                    .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
+        List<IHistory> history = new ArrayList<>();
+        for (BlockPos blockPos : pos) {
+            history.addAll(containerService.getHistory(level, blockPos).stream()
+                    .filter(hist -> hist.getAction() != null && hist.getAction().getOperation() != Operation.NEUTRAL)
                     .map(this::createUnreliableHistory)
-                    .collect(Collectors.toList());
-        } else {
-            return containerService.getHistory(level, pos.getFirst()).stream()
-                    .filter(hist -> hist.getAction().getOperation() != Operation.NEUTRAL)
-                    .map(this::createUnreliableHistory)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
         }
+        return history;
     }
 
     public void getContainerHistoryAsync(Level level, List<BlockPos> pos, OnComplete<List<IHistory>> onComplete) {

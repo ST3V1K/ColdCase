@@ -86,35 +86,18 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
     public void coldcase$sendMagnifyingGlassMessage(List<IHistory> historyList) {
         ServerPlayer serverPlayer = coldcase$asServerPlayer();
         if (!historyList.isEmpty()) {
-            List<IHistory> revealedHistories = new ArrayList<>();
-            double currentRevealChance = ColdCaseCustomConfig.clueBaseRevealChance.get() / 100.0;
-
-            for (IHistory history : historyList) {
-                if (history.shouldReveal(currentRevealChance)) {
-                    revealedHistories.add(history);
-                    currentRevealChance *= ColdCaseCustomConfig.itemRevealFalloff.get();
-                } else {
-                    break; // Stop revealing once the random check fails
-                }
-            }
+            List<IHistory> revealedHistories = new ArrayList<>(historyList);
 
             if (!revealedHistories.isEmpty()) {
                 BlockPos locationPos = revealedHistories.getFirst().getPosition().toBlockPos();
 
-                // Store the revealed list so the navigation command can look up clues by index.
                 ClueNavigationCommand.storePlayerHistoryList(serverPlayer.getUUID(), locationPos, revealedHistories);
 
-                // Generate a stable UUID for this clue slot in the player's chat.
-                // The same UUID is reused on every navigation click so the client can
-                // replace the existing chat line rather than appending a new one.
                 UUID clueMessageId = UUID.randomUUID();
                 ClueNavigationCommand.storePlayerMessageId(serverPlayer.getUUID(), locationPos, clueMessageId);
 
-                // Send the header as a normal system message (it is never replaced).
                 serverPlayer.sendSystemMessage(Component.literal(ColdCaseCustomConfig.clueFoundHeader.get()));
 
-                // Build the initial clue component (index 0) with the navigation footer,
-                // then send it via the custom packet so the client can later replace it.
                 IHistory firstClue = revealedHistories.getFirst();
                 MutableComponent clueComponent = firstClue.getClueComponent().copy();
                 clueComponent.append(com.daqem.coldcase.util.ClueComponentUtils.createNavigationFooter(

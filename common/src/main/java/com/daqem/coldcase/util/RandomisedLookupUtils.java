@@ -2,8 +2,14 @@ package com.daqem.coldcase.util;
 
 import com.daqem.coldcase.block.BlockHandler;
 import com.daqem.coldcase.block.container.ContainerHandler;
+import com.daqem.coldcase.config.ColdCaseCustomConfig;
 import com.daqem.coldcase.database.service.Services;
+import com.daqem.coldcase.model.history.BlockHistory;
+import com.daqem.coldcase.model.history.ContainerHistory;
 import com.daqem.coldcase.model.history.IHistory;
+import com.daqem.coldcase.model.history.UnreliableBlockHistory;
+import com.daqem.coldcase.model.history.UnreliableContainerHistory;
+import com.daqem.coldcase.model.history.UnreliableTransactionHistory;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,8 +22,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class RandomisedLookupUtils {
 
@@ -75,12 +84,70 @@ public class RandomisedLookupUtils {
 
     private static void fetchAndSendContainerHistory(ColdCaseServerPlayer player, Level level, List<BlockPos> positions) {
         Services.COLD_CASE_CONTAINER.getContainerHistoryAsync(level, positions, containerHistory -> {
-            List<IHistory> history = new ArrayList<>(containerHistory);
+            List<IHistory> history = new ArrayList<>();
+
+            containerHistory.stream()
+                    .collect(Collectors.groupingBy(h -> new UnreliableTransactionHistory.TransactionKey(h.getOriginalTime(), h.getUser()
+                            .getUUID())))
+                    .forEach((key, transactions) -> {
+                        List<ContainerHistory> containerTransactions = transactions.stream()
+                                .map(t -> (ContainerHistory) t)
+                                .toList();
+
+                        int totalItems = containerTransactions.stream()
+                                .mapToInt(t -> t.getItemStack().getCount())
+                                .sum();
+
+                        double transactionFactor = getTransactionFactor(totalItems);
+
+                        List<UnreliableContainerHistory> unreliableTransactions = containerTransactions.stream()
+                                .map(UnreliableContainerHistory::new)
+                                .collect(Collectors.toList());
+
+                        history.add(new UnreliableTransactionHistory(key, unreliableTransactions, transactionFactor));
+                    });
+
             Services.COLD_CASE_BLOCK.getInteractionHistoryAsync(level, positions, interactionHistory -> {
-                history.addAll(interactionHistory);
-                history.sort((a, b) -> Long.compare(b.getOriginalTime(), a.getOriginalTime()));
-                player.coldcase$sendMagnifyingGlassMessage(history);
+                history.addAll(interactionHistory.stream()
+                        .map(h -> new UnreliableBlockHistory((BlockHistory) h))
+                        .toList());
+                fetchBlockHistoryRecursive(level, new ArrayList<>(positions), history, combinedHistory -> {
+                    combinedHistory.sort(Comparator.comparingLong(IHistory::getOriginalTime)
+                            .reversed());
+                    player.coldcase$sendMagnifyingGlassMessage(combinedHistory);
+                });
             });
+        });
+    }
+
+    private static double getTransactionFactor(int totalItems) {
+        double minFactor = ColdCaseCustomConfig.minItemTransactionFactor.get();
+        double maxFactor = ColdCaseCustomConfig.maxItemTransactionFactor.get();
+        int minItems = ColdCaseCustomConfig.minItemsForFactor.get();
+        int maxItems = ColdCaseCustomConfig.maxItemsForFactor.get();
+
+        if (totalItems <= minItems) {
+            return minFactor;
+        }
+        if (totalItems >= maxItems) {
+            return maxFactor;
+        }
+
+        double slope = (maxFactor - minFactor) / (maxItems - minItems);
+        return minFactor + (totalItems - minItems) * slope;
+    }
+
+    private static void fetchBlockHistoryRecursive(Level level, List<BlockPos> positions, List<IHistory> history, Consumer<List<IHistory>> callback) {
+        if (positions.isEmpty()) {
+            callback.accept(history);
+            return;
+        }
+        BlockPos currentPos = positions.removeFirst();
+        Services.COLD_CASE_BLOCK.getBlockHistoryAsync(level, currentPos, blockHistory -> {
+            history.addAll(blockHistory.stream()
+                    .map(h -> new UnreliableBlockHistory((BlockHistory) h))
+                    .toList());
+            fetchBlockHistoryRecursive(level, positions, history, callback);
         });
     }
 

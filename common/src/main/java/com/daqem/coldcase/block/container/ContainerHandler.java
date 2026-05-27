@@ -19,27 +19,31 @@ public class ContainerHandler {
     }
 
     public static Optional<BaseContainerBlockEntity> getContainer(BlockEntity blockEntity) {
-        return hasContainer(blockEntity) ? Optional.of((BaseContainerBlockEntity) blockEntity) : Optional.empty();
+        if (hasContainer(blockEntity)) {
+            return Optional.of((BaseContainerBlockEntity) blockEntity);
+        }
+        return getContainers(blockEntity).map(list -> list.get(0));
     }
 
     public static boolean hasContainer(MenuProvider menuProvider) {
-        return menuProvider instanceof BaseContainerBlockEntity;
+        return menuProvider instanceof BaseContainerBlockEntity || getContainers(menuProvider).isPresent();
     }
 
     public static Optional<BaseContainerBlockEntity> getContainer(MenuProvider menuProvider) {
-        return hasContainer(menuProvider) ? Optional.of((BaseContainerBlockEntity) menuProvider) : Optional.empty();
+        if (menuProvider instanceof BaseContainerBlockEntity) {
+            return Optional.of((BaseContainerBlockEntity) menuProvider);
+        }
+        return getContainers(menuProvider).map(list -> list.get(0));
     }
 
-    public static Optional<List<BaseContainerBlockEntity>> getContainers(MenuProvider menuProvider) {
-        // Get all properties of the menu provider that are instances of BaseContainerBlockEntity
+    public static Optional<List<BaseContainerBlockEntity>> getContainers(Object object) {
         List<BaseContainerBlockEntity> containers = new ArrayList<>();
 
-        for (Field field : menuProvider.getClass().getDeclaredFields()) {
+        for (Field field : object.getClass().getDeclaredFields()) {
             if (BaseContainerBlockEntity.class.isAssignableFrom(field.getType())) {
                 try {
-                    // Make the field accessible if it's not already
                     field.setAccessible(true);
-                    containers.add((BaseContainerBlockEntity) field.get(menuProvider));
+                    containers.add((BaseContainerBlockEntity) field.get(object));
                 } catch (IllegalAccessException e) {
                     com.daqem.coldcase.ColdCase.LOGGER.error("Failed to access field: {}", field.getName(), e);
                 }
