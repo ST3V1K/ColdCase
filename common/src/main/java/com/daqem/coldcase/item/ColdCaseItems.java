@@ -29,7 +29,9 @@ public class ColdCaseItems {
                     () -> new ItemStack(ColdCaseItems.MAGNIFYING_GLASS.get())));
 
     public static final RegistrySupplier<Item> MAGNIFYING_GLASS = ITEMS.register("magnifying_glass",
-            () -> new MagnifyingGlass(new Item.Properties().stacksTo(1).arch$tab(COLD_CASE_TAB)));
+            () -> new MagnifyingGlass(new Item.Properties()
+                    .durability(10)
+                    .arch$tab(COLD_CASE_TAB)));
     public static final RegistrySupplier<Item> AUTOPSY_KIT = ITEMS.register("autopsy_kit",
             () -> new AutopsyKit(new Item.Properties().stacksTo(1).arch$tab(COLD_CASE_TAB)));
     public static final RegistrySupplier<Item> IDENTITY_THEFT = ITEMS.register("identity_theft",
