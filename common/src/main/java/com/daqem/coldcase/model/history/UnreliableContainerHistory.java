@@ -2,7 +2,6 @@ package com.daqem.coldcase.model.history;
 
 import com.daqem.coldcase.ColdCase;
 import com.daqem.coldcase.config.ColdCaseCustomConfig;
-import com.daqem.coldcase.model.BlockPosition;
 import com.daqem.coldcase.model.Time;
 import com.daqem.coldcase.model.User;
 import net.minecraft.ChatFormatting;
@@ -10,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Date;
 import java.util.Random;
@@ -177,8 +177,10 @@ public class UnreliableContainerHistory extends ContainerHistory {
     }
 
     @Override
-    public Component getMaterialComponent() {
-        return getItemStack().toItemStack().getDisplayName();
+    public MutableComponent getMaterialComponent() {
+        ItemStack itemStack = getItemStack().toItemStack();
+        itemStack.setCount(1);
+        return itemStack.getDisplayName().copy();
     }
 
     public Time getTime(Random random) {

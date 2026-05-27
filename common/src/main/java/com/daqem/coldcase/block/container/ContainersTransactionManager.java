@@ -89,14 +89,9 @@ public class ContainersTransactionManager implements IContainerTransactionManage
         }
 
         for (SimpleItemStack simpleItemStack : itemStackList) {
-            if (simpleItemStack.getItem() == itemStack.getItem()) {
-                if (simpleItemStack.hasTag() && !itemStack.getComponentsPatch().isEmpty() && simpleItemStack.getTag().equals(itemStack.getComponentsPatch())) {
-                    simpleItemStack.addCount(itemStack.getCount());
-                    return;
-                } else if (simpleItemStack.hasNoTag() && itemStack.getComponentsPatch().isEmpty()) {
-                    simpleItemStack.addCount(itemStack.getCount());
-                    return;
-                }
+            if (simpleItemStack.isSameItem(new SimpleItemStack(itemStack))) {
+                simpleItemStack.addCount(itemStack.getCount());
+                return;
             }
         }
 

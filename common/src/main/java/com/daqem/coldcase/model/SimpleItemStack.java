@@ -7,6 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,6 +81,16 @@ public class SimpleItemStack {
         this.count += count;
     }
 
+    public boolean isSameItem(SimpleItemStack other) {
+        if (other == null) {
+            return false;
+        }
+        if (item == Items.AIR && other.item == Items.AIR) {
+            return true;
+        }
+        return item == other.item && Objects.equals(tag, other.tag);
+    }
+
     public byte @Nullable [] getTagBytes(Level level) {
         if (tag == null) {
             return null;
@@ -99,5 +110,14 @@ public class SimpleItemStack {
 
     public boolean isEmpty() {
         return item.equals(ItemStack.EMPTY.getItem()) || count == 0;
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleItemStack{" +
+                "item=" + item +
+                ", count=" + count +
+                ", tag=" + tag +
+                '}';
     }
 }

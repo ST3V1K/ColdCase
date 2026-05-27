@@ -9,6 +9,7 @@ import com.daqem.coldcase.thread.ThreadManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,9 @@ public class ColdCaseBlockService {
 
     public List<IHistory> getBlockHistory(Level level, BlockPos pos) {
         return blockService.getBlockHistory(level, pos).stream()
+                .max(Comparator.comparingLong(IHistory::getOriginalTime))
                 .map(this::createUnreliableHistory)
+                .stream()
                 .collect(Collectors.toList());
     }
 
