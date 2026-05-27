@@ -129,12 +129,12 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
 
     @Inject(at = @At("HEAD"), method = "openMenu")
     public void openMenu(MenuProvider menuProvider, CallbackInfoReturnable<OptionalInt> cir) {
-        Optional<BaseContainerBlockEntity> container = ContainerHandler.getContainer(menuProvider);
-        if (container.isPresent()) {
-            this.coldcase$containerTransactionManager = new ContainerTransactionManager(container.get());
+        Optional<List<BaseContainerBlockEntity>> containers = ContainerHandler.getContainers(menuProvider);
+        if (containers.isPresent() && containers.get().size() > 1) {
+            this.coldcase$containerTransactionManager = new ContainersTransactionManager(containers.get());
         } else {
-            ContainerHandler.getContainers(menuProvider).ifPresent(containers -> {
-                this.coldcase$containerTransactionManager = new ContainersTransactionManager(containers);
+            ContainerHandler.getContainer(menuProvider).ifPresent(container -> {
+                this.coldcase$containerTransactionManager = new ContainerTransactionManager(container);
             });
         }
     }
