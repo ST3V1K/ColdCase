@@ -24,7 +24,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -86,26 +88,49 @@ public class RandomisedLookupUtils {
         Services.COLD_CASE_CONTAINER.getContainerHistoryAsync(level, positions, containerHistory -> {
             List<IHistory> history = new ArrayList<>();
 
-            containerHistory.stream()
+            Map<UnreliableTransactionHistory.TransactionKey, List<IHistory>> groupedBy = containerHistory.stream()
                     .collect(Collectors.groupingBy(h -> new UnreliableTransactionHistory.TransactionKey(h.getOriginalTime(), h.getUser()
-                            .getUUID())))
-                    .forEach((key, transactions) -> {
-                        List<ContainerHistory> containerTransactions = transactions.stream()
-                                .map(t -> (ContainerHistory) t)
-                                .toList();
+                            .getUUID()), Collectors.toList()));
 
-                        int totalItems = containerTransactions.stream()
-                                .mapToInt(t -> t.getItemStack().getCount())
-                                .sum();
+            List<UnreliableTransactionHistory.TransactionKey> sortedKeys = groupedBy.keySet()
+                    .stream()
+                    .sorted(Comparator.comparingLong(UnreliableTransactionHistory.TransactionKey::timestamp).reversed())
+                    .collect(Collectors.toList());
 
-                        double transactionFactor = getTransactionFactor(totalItems);
+            double baseChance = ColdCaseCustomConfig.magnifyingGlassBaseChance.get();
+            double falloffChance = ColdCaseCustomConfig.magnifyingGlassFalloffChance.get();
 
-                        List<UnreliableContainerHistory> unreliableTransactions = containerTransactions.stream()
-                                .map(UnreliableContainerHistory::new)
-                                .collect(Collectors.toList());
+            long seed = 0;
+            for (BlockPos blockPos : positions) {
+                seed = 31 * seed + blockPos.asLong();
+            }
+            Random random = new Random(seed);
 
-                        history.add(new UnreliableTransactionHistory(key, unreliableTransactions, transactionFactor));
-                    });
+            for (int i = 0; i < sortedKeys.size(); i++) {
+                UnreliableTransactionHistory.TransactionKey key = sortedKeys.get(i);
+                List<IHistory> transactions = groupedBy.get(key);
+
+                double chance = baseChance - (i * falloffChance);
+                if (random.nextDouble() > chance) {
+                    continue;
+                }
+
+                List<ContainerHistory> containerTransactions = transactions.stream()
+                        .map(t -> (ContainerHistory) t)
+                        .toList();
+
+                int totalItems = containerTransactions.stream()
+                        .mapToInt(t -> t.getItemStack().getCount())
+                        .sum();
+
+                double transactionFactor = getTransactionFactor(totalItems);
+
+                List<UnreliableContainerHistory> unreliableTransactions = containerTransactions.stream()
+                        .map(t -> new UnreliableContainerHistory((ContainerHistory) t, chance))
+                        .collect(Collectors.toList());
+
+                history.add(new UnreliableTransactionHistory(key, unreliableTransactions, transactionFactor, chance));
+            }
 
             Services.COLD_CASE_BLOCK.getInteractionHistoryAsync(level, positions, interactionHistory -> {
                 history.addAll(interactionHistory.stream()

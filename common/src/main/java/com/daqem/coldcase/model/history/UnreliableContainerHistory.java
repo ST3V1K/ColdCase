@@ -17,8 +17,11 @@ import java.util.regex.Pattern;
 
 public class UnreliableContainerHistory extends ContainerHistory {
 
-    public UnreliableContainerHistory(ContainerHistory history) {
+    private final double chance;
+
+    public UnreliableContainerHistory(ContainerHistory history, double chance) {
         super(history.getTime(), history.getUser(), history.getPosition(), history.getItemStack(), history.getAction(), history.getCleanworkArmor());
+        this.chance = chance;
     }
 
     public void appendBaseClues(MutableComponent component, double transactionFactor, Random random) {
@@ -77,7 +80,7 @@ public class UnreliableContainerHistory extends ContainerHistory {
             }
         }
 
-        return baseRevealChance * revealChanceModifier * transactionFactor;
+        return baseRevealChance * revealChanceModifier * transactionFactor * chance;
     }
 
     private MutableComponent formatComponent(String format, String placeholder, Component value) {

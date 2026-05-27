@@ -27,7 +27,7 @@ public class ColdCaseContainerService {
             history.addAll(containerService.getHistory(level, blockPos).stream()
                     .filter(hist -> hist.getAction() != null && hist.getAction().getOperation() != Operation.NEUTRAL)
                     .map(this::createUnreliableHistory)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
         return history;
     }
@@ -38,7 +38,7 @@ public class ColdCaseContainerService {
 
     private IHistory createUnreliableHistory(IHistory history) {
         if (history instanceof ContainerHistory containerHistory) {
-            return new UnreliableContainerHistory(containerHistory);
+            return new UnreliableContainerHistory(containerHistory, 1.0);
         }
         return history;
     }

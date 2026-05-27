@@ -15,13 +15,15 @@ public class UnreliableTransactionHistory extends UnreliableHistory {
     private final List<UnreliableContainerHistory> transactions;
     private final double transactionFactor;
     private final Random random;
+    private final double chance;
 
-    public UnreliableTransactionHistory(TransactionKey key, List<UnreliableContainerHistory> transactions, double transactionFactor) {
+    public UnreliableTransactionHistory(TransactionKey key, List<UnreliableContainerHistory> transactions, double transactionFactor, double chance) {
         super(transactions.getFirst().getTime(), transactions.getFirst()
                 .getUser(), transactions.getFirst().getPosition());
         this.transactions = transactions;
         this.transactionFactor = transactionFactor;
         this.random = new Random(key.getSeed());
+        this.chance = chance;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class UnreliableTransactionHistory extends UnreliableHistory {
             component.append(ColdCase.literal("§aAdded: "));
             int amount;
             for (amount = 1; amount < addedItems.size(); amount++) {
-                if (random.nextDouble() > ColdCaseCustomConfig.clueBaseRevealChance.get() / 100.0 * transactionFactor) {
+                if (random.nextDouble() > chance * transactionFactor) {
                     break;
                 }
             }
@@ -61,7 +63,7 @@ public class UnreliableTransactionHistory extends UnreliableHistory {
             component.append(ColdCase.literal("§cRemoved: "));
             int amount;
             for (amount = 1; amount < removedItems.size(); amount++) {
-                if (random.nextDouble() > ColdCaseCustomConfig.clueBaseRevealChance.get() / 100.0 * transactionFactor) {
+                if (random.nextDouble() > chance * transactionFactor) {
                     break;
                 }
             }

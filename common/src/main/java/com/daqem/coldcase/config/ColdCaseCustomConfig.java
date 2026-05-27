@@ -30,6 +30,9 @@ public class ColdCaseCustomConfig {
     public static final Supplier<Integer> itemRevealZeroChanceTime;
     public static final Supplier<Double> timeInaccuracy;
 
+    public static final Supplier<Double> magnifyingGlassBaseChance;
+    public static final Supplier<Double> magnifyingGlassFalloffChance;
+
     public static final Supplier<Double> minItemTransactionFactor;
     public static final Supplier<Double> maxItemTransactionFactor;
     public static final Supplier<Integer> minItemsForFactor;
@@ -123,6 +126,13 @@ public class ColdCaseCustomConfig {
         timeInaccuracy = config.comment("The maximum inaccuracy of the time of an action (e.g. 0.1 for 10% inaccuracy).")
                 .onlyOnServer()
                 .define("timeInaccuracy", 0.01, 0.0, 1.0);
+
+        magnifyingGlassBaseChance = config.comment("The base chance (0.0-1.0) to reveal the first clue with the magnifying glass.")
+                .onlyOnServer()
+                .define("magnifyingGlassBaseChance", 1.0, 0.0, 1.0);
+        magnifyingGlassFalloffChance = config.comment("The amount by which the reveal chance decreases for each subsequent clue with the magnifying glass.")
+                .onlyOnServer()
+                .define("magnifyingGlassFalloffChance", 0.3, 0.0, 1.0);
 
         minItemTransactionFactor = config.comment("The minimum multiplier (e.g., 0.15 for 15%) for the reveal chance of a container transaction.")
                 .onlyOnServer()
