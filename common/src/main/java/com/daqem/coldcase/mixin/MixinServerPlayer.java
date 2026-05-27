@@ -14,8 +14,10 @@ import com.daqem.coldcase.model.SimpleItemStack;
 import com.daqem.coldcase.model.action.ItemAction;
 import com.daqem.coldcase.model.history.IHistory;
 import com.daqem.coldcase.network.ColdCaseNetwork;
+import com.daqem.coldcase.network.packet.ClueUpdatePacket;
 import com.daqem.coldcase.player.ColdCaseServerPlayer;
 import com.mojang.authlib.GameProfile;
+import dev.architectury.networking.NetworkManager;
 import dev.architectury.utils.EnvExecutor;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
@@ -103,7 +105,11 @@ public abstract class MixinServerPlayer extends Player implements ColdCaseServer
                 clueComponent.append(com.daqem.coldcase.util.ClueComponentUtils.createNavigationFooter(
                         0, revealedHistories.size(), firstClue.getPosition()));
 
-                ColdCaseNetwork.sendClueUpdate(serverPlayer, clueMessageId, clueComponent);
+                if (NetworkManager.canPlayerReceive(serverPlayer, ClueUpdatePacket.TYPE)) {
+                    ColdCaseNetwork.sendClueUpdate(serverPlayer, clueMessageId, clueComponent);
+                } else {
+                    serverPlayer.sendSystemMessage(clueComponent);
+                }
                 return;
             }
         }
